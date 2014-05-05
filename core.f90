@@ -3,7 +3,7 @@ program Core
 	implicit none
 
 call Print
-call Initialize
+call Initialize !Testing Changes
 
 	
 contains
