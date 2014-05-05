@@ -3,6 +3,7 @@ program Core
 	implicit none
 
 call Print
+call Initialize
 
 	
 contains
