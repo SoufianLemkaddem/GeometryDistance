@@ -11,6 +11,7 @@ COMPILE = $(FC) $(FFLAGS)
 LINK = $(FC) $(LDFLAGS)
 
 OBJS += initializers.o
+OBJS += point.o
 OBJS += plotters.o
 OBJS += geometry.o
 
