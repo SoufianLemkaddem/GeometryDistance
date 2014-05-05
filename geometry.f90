@@ -22,7 +22,7 @@ subroutine Initialize
 ! Main initilizing routine
     call GetParameters(NumPoints)
     
-    allocate(KnownPos(2, NumPoints), Dist(NumPoints(NumPoints)/2), Pos(2, NumPoints))
+    allocate(KnownPos(2, NumPoints), Dist(NumPoints*(NumPoints-1)/2), Pos(2, NumPoints))
     
 end subroutine Initialize
 
