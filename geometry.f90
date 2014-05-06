@@ -5,6 +5,7 @@ program geometry
     use initializers
     use point
     use plotters
+	use testpoints
     implicit none
     
     ! Variables, see geometry.params for the user-defined parameters
@@ -14,8 +15,10 @@ program geometry
 
 
     call Initialize
+	call shapes
 
 
+	call plot_close
 contains
 
 subroutine Initialize
