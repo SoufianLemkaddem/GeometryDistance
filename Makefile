@@ -10,12 +10,12 @@ LIBS += $(shell pkg-config --libs plplotd-f95)
 COMPILE = $(FC) $(FFLAGS)
 LINK = $(FC) $(LDFLAGS)
 
+OBJS += test_points.o
 OBJS += TempFcns.o
 OBJS += initializers.o
 OBJS += point.o
 OBJS += plotters.o
 OBJS += geometry.o
-OBJS += test_points.o
 
 geometry: $(OBJS)
 	$(LINK) -o $@ $^ $(LIBS)	
