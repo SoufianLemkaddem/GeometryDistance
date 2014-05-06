@@ -20,6 +20,8 @@ program geometry
     
     call FindCore
     
+    call GeometricDraw(Pos(:,4))
+    
 contains
 
 subroutine Initialize
@@ -101,6 +103,7 @@ subroutine GetTriangle(NewTrianglePoint, NewTriangleDist, iTriangle, Point1, &
     real(8), intent(in) :: Point1(:), Point2(:)
     real(8), intent(in) :: Dist(:)
     logical, intent(in) :: DistUsed(:)
+    
     
     
 end subroutine GetTriangle
