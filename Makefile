@@ -15,6 +15,7 @@ OBJS += initializers.o
 OBJS += point.o
 OBJS += plotters.o
 OBJS += geometry.o
+OBJS += test_points.o
 
 geometry: $(OBJS)
 	$(LINK) -o $@ $^ $(LIBS)	

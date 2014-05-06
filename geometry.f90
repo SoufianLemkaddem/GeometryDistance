@@ -5,6 +5,7 @@ program geometry
     use initializers
     use point
     use plotters
+	use testpoints
     implicit none
     
     ! Variables, see geometry.params for the user-defined parameters
@@ -17,9 +18,16 @@ program geometry
 
 
     call Initialize
+<<<<<<< HEAD
+	call shapes
+
+
+	call plot_close
+=======
     
     call FindCore
     
+>>>>>>> 380802424d8d3aefb0fbc72a322402c56938cf3b
 contains
 
 subroutine Initialize
