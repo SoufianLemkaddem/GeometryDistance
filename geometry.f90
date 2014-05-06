@@ -18,16 +18,11 @@ program geometry
 
 
     call Initialize
-<<<<<<< HEAD
-	call shapes
-
-
-	call plot_close
-=======
     
     call FindCore
     
->>>>>>> 380802424d8d3aefb0fbc72a322402c56938cf3b
+    call GeometricDraw(Pos(:,4))
+    
 contains
 
 subroutine Initialize
@@ -113,6 +108,8 @@ subroutine GetTriangle(NewTrianglePoint, NewTriangleDist, iTriangle, Point1, &
     real(8), intent(in) :: Dist(:)
     logical, intent(in) :: DistUsed(:)
     
+    ! Supply triangle with index # iTriangle
+    ! Get permutation number iTriangle
     
 end subroutine GetTriangle
 
