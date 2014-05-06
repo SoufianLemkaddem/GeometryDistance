@@ -100,7 +100,6 @@ subroutine MainInitalizing(NumPoints, KnownPos, Dist)
     real(8), intent(inout) :: Dist(:)
     logical :: UseDFile
     character (len=50) :: PosFile, DistFile
-    integer :: TESTITER
 
     open(26, file='initalizers.params')
     read(26,*) UseDFile
@@ -116,10 +115,6 @@ subroutine MainInitalizing(NumPoints, KnownPos, Dist)
     end if
 
     call SortDist(NumPoints, Dist)
-
-    do TESTITER = 1, 6
-        print *, Dist(TESTITER)
-    end do
 end subroutine MainInitalizing
 !**********************************************************************
 end module
