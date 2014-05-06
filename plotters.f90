@@ -82,7 +82,7 @@ contains
 ! **********************************************************************************
 ! Closes plot
   subroutine plot_close()
-    call plspause(.false.)
+    call plspause(.true.)
     call plend()
   end subroutine plot_close
 
