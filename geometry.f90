@@ -5,6 +5,7 @@ program geometry
     use initializers
     use point
     use plotters
+	use testpoints
     implicit none
     
     ! Variables, see geometry.params for the user-defined parameters
