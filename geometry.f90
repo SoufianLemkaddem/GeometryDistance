@@ -107,7 +107,8 @@ subroutine GetTriangle(NewTrianglePoint, NewTriangleDist, iTriangle, Point1, &
     real(8), intent(in) :: Dist(:)
     logical, intent(in) :: DistUsed(:)
     
-    
+    ! Supply triangle with index # iTriangle
+    ! Get permutation number iTriangle
     
 end subroutine GetTriangle
 
