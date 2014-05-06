@@ -93,7 +93,7 @@ subroutine SortDist(NumPoints, Dist)
 end subroutine SortDist
 !**********************************************************************
 !
-! Fills the distance from a 2,NumPoints array of X,Y coords
+! Completly initalizes KnownPos & Dist
 subroutine MainInitalizing(NumPoints, KnownPos, Dist)
     integer, intent(in) :: NumPoints
     real(8), intent(out) :: KnownPos(2,NumPoints)
