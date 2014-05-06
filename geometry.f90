@@ -37,7 +37,7 @@ subroutine Initialize
     KnownPos = 0d0
     Dist = 0d0
 
-    call MainInitializing(NumPoints, KnownPos, Dist)
+    !call MainInitializing(NumPoints, KnownPos, Dist)
     
     DistUsed = .false.
     
