@@ -4,11 +4,6 @@
 module plotters
 	use plplot
 	implicit none
-	private
-	public drawNicePolymer
-    implicit none
-    
-
     public GeometricDraw, plot_positions, Plot_init
 
 
@@ -23,7 +18,7 @@ contains
     	real(8), intent(in) :: pointPosition(:,:)
         call plot_init(pointPosition)
         call plot_positions(pointPosition)
-    end subroutine drawNicePolymer
+    end subroutine GeometricDraw
     
     
 ! **********************************************************************************
@@ -38,9 +33,9 @@ contains
         !call pljoin(0d0, -10d0, 0d0, 0d0)
         
         ! Draw molecules
-        do i = 1, size(polymerPosPlot, 1)
+        do i = 1, size(PointPos, 1)
             call plcol0(13)
-            call plpoin([polymerPosPlot(i,1)], [polymerPosPlot(i,2)], 21)
+            call plpoin([PointPos(i,1)], [PointPos(i,2)], 21)
         end do
 
         ! Draw lines
@@ -52,7 +47,7 @@ contains
 
         !call plflush()
         
-    end subroutine plot_Polymer
+    end subroutine plot_Positions
     
 ! **********************************************************************************
 ! Initilizes plot
@@ -75,10 +70,10 @@ contains
         !call plscol0(7, 255, 0, 255)    ! magenta
         !call plscol0(8, 128, 128, 128)  ! gray
         !call plscol0(9, 0, 0, 0)        ! black
-        maxX = maxval([polymerPosPlot(:,1)])
-        minX = minval([polymerPosPlot(:,1)])
-        maxY = maxval([polymerPosPlot(:,2)])
-        minY = minval([polymerPosPlot(:,2)])
+        maxX = maxval([PointPos(:,1)])
+        minX = minval([PointPos(:,1)])
+        maxY = maxval([PointPos(:,2)])
+        minY = minval([PointPos(:,2)])
         margin = 10d0
     
         call plenv(minX-margin, maxX+margin, minY-margin, maxY+margin, 1, 0)
@@ -91,7 +86,5 @@ contains
     call plend()
   end subroutine plot_close
 
-end module plot
-! **********************************************************************************
+end module plotters
 
-end module
