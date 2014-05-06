@@ -3,13 +3,14 @@
 ! **********************************************************************************
 module initializers
     implicit none
-    private
+
+    private GetKnownPos
+    private FillDistKP
+    private FillDistTxt
+    private SortDist
 
     public GetParameters
-    public GetKnownPos
-    public FillDistKP
-    public FillDistTxt
-    public SortDist
+    public MainInitalizing
 
 contains
 ! **********************************************************************************   
@@ -24,12 +25,13 @@ end subroutine GetParameters
 !**********************************************************************
 !
 ! Reads in the positions from a file of NumPoint lines
-subroutine GetKnownPos(NumPoints, KnownPos)
+subroutine GetKnownPos(NumPoints, PosFile, KnownPos)
     integer, intent(in) :: NumPoints
+    character (len=50), intent(in) :: PosFile
     real(8), intent(out) :: KnownPos(2,NumPoints)
     integer :: KPIter
 
-    open(24, file='PosInput.txt')
+    open(24, file=PosFile)
     do KPIter = 1, NumPoints
         read(24,*) KnownPos(1,KPIter), KnownPos(2,KPIter)
     end do    
@@ -57,12 +59,13 @@ end subroutine FillDistKP
 !**********************************************************************
 !
 ! Reads in the distances from a file of NumPoint*(NumPoint-1)/2 lines
-subroutine FillDistTxt(NumPoints, Dist)
+subroutine FillDistTxt(NumPoints, DistFile, Dist)
     integer, intent(in) :: NumPoints
+    character (len=50), intent(in) :: DistFile
     real(8), intent(out) :: Dist(NumPoints*(NumPoints-1)/2)
     integer :: FDTIter
 
-    open(25, file='PosInput.txt')
+    open(25, file=DistFile)
     do FDTIter = 1, NumPoints*(NumPoints-1)/2
         read(25,*) Dist(FDTIter)
     end do    
@@ -78,15 +81,45 @@ subroutine SortDist(NumPoints, Dist)
     integer :: SDIter1, SDIter2
     real(8) :: SDTemp
 
-    do SDIter1 = 1, NumPoints-1
-        do SDIter2 = 1, NumPoints-SDIter1
-            if (Dist(SDIter1) > Dist(SDIter2)) then
-                SDTemp = Dist(SDIter1)
-                Dist(SDIter1) = Dist(SDIter2)
-                Dist(SDIter2) = SDTemp
+    do SDIter1 = 1, (NumPoints*(NumPoints-1)/2)-1
+        do SDIter2 = 1, (NumPoints*(NumPoints-1)/2)-SDIter1
+            if (Dist(SDIter2) > Dist(SDIter2+1)) then
+                SDTemp = Dist(SDIter2)
+                Dist(SDIter2) = Dist(SDIter2+1)
+                Dist(SDIter2+1) = SDTemp
             end if
         end do
     end do
 end subroutine SortDist
+!**********************************************************************
+!
+! Fills the distance from a 2,NumPoints array of X,Y coords
+subroutine MainInitalizing(NumPoints, KnownPos, Dist)
+    integer, intent(in) :: NumPoints
+    real(8), intent(out) :: KnownPos(2,NumPoints)
+    real(8), intent(out) :: Dist(NumPoints*(NumPoints-1)/2)
+    logical :: UseDFile
+    character (len=50) :: PosFile, DistFile
+    integer :: TESTITER
+
+    open(26, file='initalizers.params')
+    read(26,*) UseDFile
+    read(26,*) PosFile
+    read(26,*) DistFile
+    close(26)
+
+    if (UseDFile) then
+        call FillDistTxt(NumPoints, DistFile, Dist)
+    else
+        call GetKnownPos(NumPoints, PosFile, KnownPos)
+        call FillDistKP(NumPoints, KnownPos, Dist)
+    end if
+
+    call SortDist(NumPoints, Dist)
+
+    do TESTITER = 1, 6
+        print *, Dist(TESTITER)
+    end do
+end subroutine MainInitalizing
 !**********************************************************************
 end module
