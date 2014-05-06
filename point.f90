@@ -7,10 +7,11 @@ module point
 
     implicit none
 
-public :: Newpoint 
+public :: Newpoint, CalcDistance
 
 contains
 
+! Calculates newpoint when 2 distances are given
 subroutine Newpoint(disti, dist1, dist2, p3)
 
 real(8), intent(in) :: disti, dist1, dist2
@@ -22,6 +23,15 @@ angle = acos(arg_angle)
 
 p3(1) = cos(angle)*dist1
 p3(2) = sin(angle)*dist1
+
+end subroutine
+
+subroutine CalcDistance(p1, p2, dist)
+
+real(8), intent(in) :: p1(2), p2(2)
+real(8), intent(inout) :: dist
+
+dist = sqrt((p1(1) - p2(1))**2 + (p1(2) - p2(2))**2)
 
 end subroutine
 
