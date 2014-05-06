@@ -1,7 +1,7 @@
 FC = gfortran
-FFLAGS = -Wall -Wextra -march=native -g -O3 -fopenmp
+FFLAGS = -Wall -Wextra -march=native -g -O3
 LDFLAGS = -g
-LIBS = -llapack -lblas -fopenmp
+LIBS = 
 
 FFLAGS += $(shell pkg-config --cflags plplotd-f95)
 LIBS += $(shell pkg-config --libs plplotd-f95)
@@ -10,6 +10,7 @@ LIBS += $(shell pkg-config --libs plplotd-f95)
 COMPILE = $(FC) $(FFLAGS)
 LINK = $(FC) $(LDFLAGS)
 
+OBJS += TempFcns.o
 OBJS += initializers.o
 OBJS += point.o
 OBJS += plotters.o
