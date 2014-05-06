@@ -4,13 +4,14 @@
 module initializers
     implicit none
 
-    private GetKnownPos
-    private FillDistKP
-    private FillDistTxt
-    private SortDist
+    private
 
+    public GetKnownPos
+    public FillDistKP
+    public FillDistTxt
+    public SortDist
     public GetParameters
-    public MainInitalizing
+    public MainSetup
 
 contains
 ! **********************************************************************************   
@@ -94,7 +95,7 @@ end subroutine SortDist
 !**********************************************************************
 !
 ! Completly initalizes KnownPos & Dist
-subroutine MainInitalizing(NumPoints, KnownPos, Dist)
+subroutine MainSetup(NumPoints, KnownPos, Dist)
     integer, intent(in) :: NumPoints
     real(8), intent(inout) :: KnownPos(:,:)
     real(8), intent(inout) :: Dist(:)
@@ -115,6 +116,6 @@ subroutine MainInitalizing(NumPoints, KnownPos, Dist)
     end if
 
     call SortDist(NumPoints, Dist)
-end subroutine MainInitalizing
+end subroutine MainSetup
 !**********************************************************************
 end module
