@@ -5,7 +5,7 @@ program geometry
     use initializers
     use point
     use plotters
-	use testpoints
+    use testpoints
     implicit none
     
     ! Variables, see geometry.params for the user-defined parameters
@@ -21,7 +21,7 @@ program geometry
     
     call FindCore
     
-    call GeometricDraw(Pos(:,4))
+    call GeometricDraw(Pos(:,1:4))
     
 contains
 
