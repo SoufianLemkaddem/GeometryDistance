@@ -16,7 +16,7 @@ contains
 ! **********************************************************************************   
 ! Reads 'geometry.params'
 subroutine GetParameters(NumPoints)
-    integer, intent(out) :: NumPoints
+    integer, intent(inout) :: NumPoints
 
     open(12, file="geometry.params")
     read(12,*) NumPoints
@@ -28,7 +28,7 @@ end subroutine GetParameters
 subroutine GetKnownPos(NumPoints, PosFile, KnownPos)
     integer, intent(in) :: NumPoints
     character (len=50), intent(in) :: PosFile
-    real(8), intent(out) :: KnownPos(2,NumPoints)
+    real(8), intent(inout) :: KnownPos(:,:)
     integer :: KPIter
 
     open(24, file=PosFile)
@@ -43,8 +43,8 @@ end subroutine GetKnownPos
 ! Fills the distance from a 2,NumPoints array of X,Y coords
 subroutine FillDistKP(NumPoints, KnownPos, Dist)
     integer, intent(in) :: NumPoints
-    real(8), intent(in) :: KnownPos(2,NumPoints)
-    real(8), intent(out) :: Dist(NumPoints*(NumPoints-1)/2)
+    real(8), intent(in) :: KnownPos(:,:)
+    real(8), intent(inout) :: Dist(:)
     integer :: FDIter1, FDIter2, DistCount
 
     DistCount = 1
@@ -62,7 +62,7 @@ end subroutine FillDistKP
 subroutine FillDistTxt(NumPoints, DistFile, Dist)
     integer, intent(in) :: NumPoints
     character (len=50), intent(in) :: DistFile
-    real(8), intent(out) :: Dist(NumPoints*(NumPoints-1)/2)
+    real(8), intent(inout) :: Dist(:)
     integer :: FDTIter
 
     open(25, file=DistFile)
@@ -77,7 +77,7 @@ end subroutine FillDistTxt
 ! Sorts Array from smallest to largest
 subroutine SortDist(NumPoints, Dist)
     integer, intent(in) :: NumPoints
-    real(8), intent(out) :: Dist(NumPoints*(NumPoints-1)/2)
+    real(8), intent(inout) :: Dist(:)
     integer :: SDIter1, SDIter2
     real(8) :: SDTemp
 
@@ -96,8 +96,8 @@ end subroutine SortDist
 ! Completly initalizes KnownPos & Dist
 subroutine MainInitalizing(NumPoints, KnownPos, Dist)
     integer, intent(in) :: NumPoints
-    real(8), intent(out) :: KnownPos(2,NumPoints)
-    real(8), intent(out) :: Dist(NumPoints*(NumPoints-1)/2)
+    real(8), intent(inout) :: KnownPos(:,:)
+    real(8), intent(inout) :: Dist(:)
     logical :: UseDFile
     character (len=50) :: PosFile, DistFile
     integer :: TESTITER
