@@ -31,6 +31,9 @@ subroutine Initialize
     allocate(TrianglePos(2,NumPoints**2))
     allocate(iTrianglePosDist(2,NumPoints**2)) ! TODO size of array?
     
+    KnownPos = 0d0
+    Dist = 0d0
+
     call MainInitializing(NumPoints, KnownPos, Dist)
     
     DistUsed = .false.
