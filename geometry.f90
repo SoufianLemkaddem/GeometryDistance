@@ -64,14 +64,10 @@ subroutine FindCore
         ! If we not succeed in finding a core the loop continues and calculates
         ! an extra triangle.
         do iTrianglesChecked=1, iTrianglesStored-1
-            if ( CheckCore( Pos, &
-                             TrianglePos(:,iTrianglesStored), &
+            
+                if ( CheckCore( TrianglePos(:,iTrianglesStored), &
                              TrianglePos(:,iTrianglesChecked), &
-                             iConnectingDist)) then 
-                             !TODO CheckMatch Should check for all 4? 
-                             ! possible versions of this triangle and 
-                             ! overwrite TrianglePos
-                             
+                             iConnectingDist)) then                            
                 ! We have a core!! 
                 ! The correct rotation of the second triangle is supplied by the checking
                 ! routine
@@ -89,14 +85,21 @@ subroutine FindCore
     print *, 'Core not found: increase array size.'
 end subroutine FindCore
 
-function CheckCore(Pos, Point3, Point4, iConnectingDist)
-    real(8), intent(in) :: Pos(:,:)
+function CheckCore(Point3, Point4, iConnectingDist)
     real(8), intent(inout) :: Point3(:), Point4(:)
     integer, intent(out) :: iConnectingDist
     logical :: CheckCore
     
+    real(8) :: distance
     
-    CheckCore = .false.
+    call CalcDistance(Point3, Point4, distance)
+    
+                            !TODO CheckMatch Should check for all 4? 
+                             ! possible versions of the second triangle and 
+                             ! overwrite Point4!!
+  
+    call DistValid(NumPoints, distance, Dist, DistUsed, CheckCore)
+    
 end function CheckCore
 
 subroutine GetTriangle(NewTrianglePoint, iNewTriangleDist, iTriangle, Point1, &
@@ -125,8 +128,8 @@ subroutine GetDistIndexCombination(iDist1, iDist2, iTriangle, Dist, DistUsed)
     real(8), intent(in) :: Dist(:)
     logical, intent(in) :: DistUsed(:)
     
-    iDist1=2
-    iDist2=3
+    iDist1=iTriangle!TODO!
+    iDist2=iTriangle+2
 end subroutine GetDistIndexCombination
 
 end program geometry
