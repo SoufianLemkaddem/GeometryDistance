@@ -45,7 +45,7 @@ subroutine Initialize
 end subroutine Initialize
 
 subroutine FindCore
-    integer :: iTrianglesStored, iTrianglesChecked, TriangleArrayLength,iConnectingDist
+    integer :: iTrianglesStored, iTrianglesChecked,iConnectingDist
      
     ! Add first segment 
     Pos(:,1) = 0
@@ -54,11 +54,10 @@ subroutine FindCore
     
     ! Loop through all triangle candidates
     ! If we find that two of the triangles 'match', we have our core.
-    TriangleArrayLength = size(TrianglePos, 2) !Max # of triangles due to arraysize
-    do iTrianglesStored=1, TriangleArrayLength
+    do iTrianglesStored=1, size(TrianglePos, 2)
         ! Get a new triangle candidate, and store it
         call GetTriangle(   TrianglePos(:,iTrianglesStored), & !New triangle
-                            iTrianglePosDist(:,iTrianglesStored), & !New dist indices
+                            iTrianglePosDist(:,:), & !New dist indices
                             iTrianglesStored, Pos(:,1), Pos(:,2), Dist, DistUsed) !Inputs
         
         ! Now, try to search for a core in the triangles that are found by now.
@@ -93,7 +92,7 @@ end subroutine FindCore
 function CheckCore(Point3, Point4, iConnectingDist)
     real(8), intent(inout) :: Point3(:), Point4(:)
     integer, intent(out) :: iConnectingDist
-    real(8) :: distance
+    real(8) :: distance, alternativesP4(2,3)
     logical :: GoodCore
     logical :: CheckCore
   
@@ -101,46 +100,51 @@ function CheckCore(Point3, Point4, iConnectingDist)
     
     
     call CalcDistance(Point3, Point4, distance)
+    alt
     
                             !TODO CheckMatch Should check for all 4? 
                              ! possible versions of the second triangle and 
-                             ! overwrite Point4!!
+                             ! overwrite Point4 of one of the other 3 is a valid point!!
   
     call DistValid(NumPoints, distance, Dist, DistUsed, GoodCore, iConnectingDist)
     
-    CheckCore = .false.
+    CheckCore = GoodCore
     
 end function CheckCore
 
-subroutine GetTriangle(NewTrianglePoint, iNewTriangleDist, iTriangle, Point1, &
+subroutine GetTriangle(NewTrianglePoint, iTrianglePosDist, iNewTriangle, Point1, &
                         Point2, Dist, DistUsed)
-    real(8), intent(out) :: NewTrianglePoint(2)
-    integer, intent(out) :: iNewTriangleDist(2) ! Contains the indexes of the distances corresponding to the new triangle
-    integer, intent(in) :: iTriangle 
-    real(8), intent(in) :: Point1(:), Point2(:)
+    real(8), intent(inout) :: NewTrianglePoint(2)
+    integer, intent(inout) :: iTrianglePosDist(:,:) ! Contains the indexes of the distances corresponding to all triangles
+    integer, intent(in) :: iNewTriangle 
+    real(8), intent(in) :: Point1(:), Point2(:) !Points that form the basis of the triangle
     real(8), intent(in) :: Dist(:)
     logical, intent(in) :: DistUsed(:)
     
-    integer :: iDist1, iDist2
-    
-    ! Supply triangle with index # iTriangle
+    integer :: iPreviousDist1, iPreviousDist2
+    iPreviousDist1 = iTrianglePosDist(1,iNewTriangle-1)
+    iPreviousDist2 = iTrianglePosDist(2,iNewTriangle-1)
     
     ! Get 2 indices corresponding to distances for the new triangle with index # iTriangle 
-    call GetDistIndexCombination(iNewTriangleDist(1), iNewTriangleDist(2), iTriangle, Dist, DistUsed)
+    ! so First get new distances indices!
+    ! goal: supply 1->[1,2], 2->[1,3] 3->[2,3], 4->[1,4], 5->[2,4], etc
+    !
+    if (iPreviousDist1 .eq. iPreviousDist2-1) then
+        ! We need to start using a new distance!
+        
+        iTrianglePosDist(2,iNewTriangle)= GetFirstNonUsedDistIndex(iPreviousDist2, DistUsed)
+        iTrianglePosDist(1,iNewTriangle)= GetFirstNonUsedDistIndex(1, DistUsed)
+    else
+        ! Increase the first distance
+        iTrianglePosDist(1,iNewTriangle) = GetFirstNonUsedDistIndex(iPreviousDist1, DistUsed)
+    end if
     
-    call Newpoint(1d0, Dist(iNewTriangleDist(1)), Dist(iNewTriangleDist(2)), NewTrianglePoint)
+    
+    ! We now have the two new indices of the new triangle
+    ! Find the corresponding point
+    call Newpoint(Dist(1), Dist(iTrianglePosDist(1, iNewTriangle)), Dist(iTrianglePosDist(2, iNewTriangle)), NewTrianglePoint)
     
 end subroutine GetTriangle
-
-subroutine GetDistIndexCombination(iDist1, iDist2, iTriangle, Dist, DistUsed)
-    integer, intent(out) :: iDist1, iDist2
-    integer, intent(in) :: iTriangle 
-    real(8), intent(in) :: Dist(:)
-    logical, intent(in) :: DistUsed(:)
-    
-    iDist1=iTriangle!TODO!
-    iDist2=iTriangle+2
-end subroutine GetDistIndexCombination
 
 
 end program geometry
