@@ -1,7 +1,7 @@
 ! **********************************************************************************
 ! Module containing temporary functions for geometry.f90
 ! **********************************************************************************
-module initializers
+module TempFcns
     implicit none
 
     private
