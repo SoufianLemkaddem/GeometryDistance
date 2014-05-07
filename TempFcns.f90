@@ -46,4 +46,7 @@ subroutine DistValid(NumPoints, DistGiven, Dist, DistUsed, CanUse, FinalIndex)
     end if
 end subroutine DistValid
 !**********************************************************************
+function CheckTrianglesUseSameDist(iTriangle1, iTriangle2, iTrianglePosDist(:,:))
+    
+end subroutine CheckTrianglesUseSameDist
 end module
