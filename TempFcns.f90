@@ -8,6 +8,7 @@ module TempFcns
 
     public DistValid
     public CheckTrianglesUseSameDist
+    public GetFirstNonUsedDistIndex
 
 contains
 !**********************************************************************
@@ -75,8 +76,22 @@ end subroutine DistValid
 !**********************************************************************
 !
 ! Checks if triangles use the same distance (T if DONT, F is do)
-!function CheckTrianglesUseSameDist(iTriangle1, iTriangle2, iTrianglePosDist)
-    
-!end function CheckTrianglesUseSameDist
+function GetFirstNonUsedDistIndex(iPreviousDist2, DistUsed)
+    integer, intent(in) :: iPreviousDist2
+    logical, intent(in) :: DistUsed(:)
+    integer :: GetFirstNonUsedDistIndex
+    integer :: MaxLen, NUDIter
+
+    MaxLen = size(DistUsed, 1)
+
+    GetFirstNonUsedDistIndex = 1
+
+    do NUDIter = iPreviousDist2, MaxLen
+        if(.not.(DistUsed(NUDIter))) then
+            GetFirstNonUsedDistIndex = NUDIter
+            exit
+        end if
+    end do
+end function GetFirstNonUsedDistIndex
 !**********************************************************************
 end module
