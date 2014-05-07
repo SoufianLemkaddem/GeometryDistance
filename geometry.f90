@@ -68,7 +68,7 @@ subroutine FindCore
             if ( CheckTrianglesUseSameDist(iTrianglesChecked, &
                                     iTrianglesStored, iTrianglePosDist) ) then
                 ! Check wether the 2 triangles form a valid core
-                if ( CheckCore( TrianglePos(:,iTrianglesStored), &
+                if ( CheckCore( Pos(:,2),TrianglePos(:,iTrianglesStored), &
                              TrianglePos(:,iTrianglesChecked), &
                              iConnectingDist)) then                            
                     ! We have a core!! 
@@ -89,8 +89,8 @@ subroutine FindCore
     print *, 'Core not found: increase array size.'
 end subroutine FindCore
 
-function CheckCore(Point3, Point4, iConnectingDist)
-    real(8), intent(inout) :: Point3(:), Point4(:)
+function CheckCore(Point2, Point3, Point4, iConnectingDist)
+    real(8), intent(inout) :: Point2(:), Point3(:), Point4(:)
     integer, intent(out) :: iConnectingDist
     real(8) :: distance, alternativesP4(2,3)
     logical :: GoodCore
@@ -100,11 +100,13 @@ function CheckCore(Point3, Point4, iConnectingDist)
     
     
     call CalcDistance(Point3, Point4, distance)
-    alt
     
+    
+    call GetAlternativeP4(alternativesP4(2,3), Point2, Point3, Point4)
                             !TODO CheckMatch Should check for all 4? 
                              ! possible versions of the second triangle and 
                              ! overwrite Point4 of one of the other 3 is a valid point!!
+                             
   
     call DistValid(NumPoints, distance, Dist, DistUsed, GoodCore, iConnectingDist)
     
