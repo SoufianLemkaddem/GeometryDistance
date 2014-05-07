@@ -65,22 +65,26 @@ subroutine FindCore
         ! If we not succeed in finding a core the loop continues and calculates
         ! an extra triangle.
         do iTrianglesChecked=1, iTrianglesStored-1
-            
+            ! The 2 triangles should not use a same distance! (except for the first distance)
+            if ( CheckTrianglesUseSameDist(iTrianglesChecked, &
+                                    iTrianglesStored, iTrianglePosDist) ) then
+                ! Check wether the 2 triangles form a valid core
                 if ( CheckCore( TrianglePos(:,iTrianglesStored), &
                              TrianglePos(:,iTrianglesChecked), &
                              iConnectingDist)) then                            
-                ! We have a core!! 
-                ! The correct rotation of the second triangle is supplied by the checking
-                ! routine
-                Pos(:,3) = TrianglePos(:,iTrianglesStored)
-                Pos(:,4) = TrianglePos(:,iTrianglesChecked)
-                DistUsed(iTrianglePosDist(1, iTrianglesStored)) = .true.
-                DistUsed(iTrianglePosDist(2, iTrianglesStored)) = .true.
-                DistUsed(iTrianglePosDist(1, iTrianglesChecked)) = .true.
-                DistUsed(iTrianglePosDist(2, iTrianglesChecked)) = .true.
-                DistUsed(iConnectingDist) = .true.
-                return
-            end if     
+                    ! We have a core!! 
+                    ! The correct rotation of the second triangle is supplied by the checking
+                    ! routine
+                    Pos(:,3) = TrianglePos(:,iTrianglesStored)
+                    Pos(:,4) = TrianglePos(:,iTrianglesChecked)
+                    DistUsed(iTrianglePosDist(1, iTrianglesStored)) = .true.
+                    DistUsed(iTrianglePosDist(2, iTrianglesStored)) = .true.
+                    DistUsed(iTrianglePosDist(1, iTrianglesChecked)) = .true.
+                    DistUsed(iTrianglePosDist(2, iTrianglesChecked)) = .true.
+                    DistUsed(iConnectingDist) = .true.
+                    return
+                end if
+            end if
         enddo
     enddo
     print *, 'Core not found: increase array size.'
@@ -102,7 +106,7 @@ function CheckCore(Point3, Point4, iConnectingDist)
                              ! possible versions of the second triangle and 
                              ! overwrite Point4!!
   
-    call DistValid(NumPoints, distance, Dist, DistUsed, GoodCore)
+    call DistValid(NumPoints, distance, Dist, DistUsed, GoodCore, iConnectingDist)
     
     CheckCore = .false.
     
@@ -137,5 +141,6 @@ subroutine GetDistIndexCombination(iDist1, iDist2, iTriangle, Dist, DistUsed)
     iDist1=iTriangle!TODO!
     iDist2=iTriangle+2
 end subroutine GetDistIndexCombination
+
 
 end program geometry
