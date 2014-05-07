@@ -99,18 +99,34 @@ function CheckCore(Pos, Point3, Point4, iConnectingDist)
     CheckCore = .false.
 end function CheckCore
 
-subroutine GetTriangle(NewTrianglePoint, NewTriangleDist, iTriangle, Point1, &
+subroutine GetTriangle(NewTrianglePoint, iNewTriangleDist, iTriangle, Point1, &
                         Point2, Dist, DistUsed)
-    real(8), intent(out) :: NewTrianglePoint(:)
-    integer, intent(out) :: NewTriangleDist(2) ! Contains the indexes of the distances corresponding to the new triangle
+    real(8), intent(out) :: NewTrianglePoint(2)
+    integer, intent(out) :: iNewTriangleDist(2) ! Contains the indexes of the distances corresponding to the new triangle
     integer, intent(in) :: iTriangle 
     real(8), intent(in) :: Point1(:), Point2(:)
     real(8), intent(in) :: Dist(:)
     logical, intent(in) :: DistUsed(:)
     
+    integer :: iDist1, iDist2
+    
     ! Supply triangle with index # iTriangle
-    ! Get permutation number iTriangle
+    
+    ! Get 2 indices corresponding to distances for the new triangle with index # iTriangle 
+    call GetDistIndexCombination(iNewTriangleDist(1), iNewTriangleDist(2), iTriangle, Dist, DistUsed)
+    
+    call Newpoint(1d0, Dist(iNewTriangleDist(1)), Dist(iNewTriangleDist(2)), NewTrianglePoint)
     
 end subroutine GetTriangle
+
+subroutine GetDistIndexCombination(iDist1, iDist2, iTriangle, Dist, DistUsed)
+    integer, intent(out) :: iDist1, iDist2
+    integer, intent(in) :: iTriangle 
+    real(8), intent(in) :: Dist(:)
+    logical, intent(in) :: DistUsed(:)
+    
+    iDist1=2
+    iDist2=3
+end subroutine GetDistIndexCombination
 
 end program geometry
