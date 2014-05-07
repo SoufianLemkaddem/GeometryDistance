@@ -23,6 +23,7 @@ program geometry
     call FindCore
     
     call GeometricDraw(Pos(:,1:4))
+    print *, 'plotting reached'
     
 contains
 
@@ -52,6 +53,7 @@ end subroutine Initialize
 ! Corefinding routine
 subroutine FindCore
     integer :: iTrianglesStored, iTrianglesChecked,iConnectingDist
+    logical :: StopSearch = .false.
      
     ! Add first segment 
     Pos(:,1) = 0
@@ -67,38 +69,47 @@ subroutine FindCore
 print *, "Finding a Triangle."
         call GetTriangle(   TrianglePos(:,iTrianglesStored), & !New triangle
                             iTrianglePosDist(:,:), & !New dist indices
-                            iTrianglesStored, Dist, DistUsed) !Inputs
-print *, "Found" , iTrianglePosDist(1,iTrianglesStored), ", ",iTrianglePosDist(2,iTrianglesStored)
+                            iTrianglesStored, Dist, DistUsed, StopSearch) !Inputs
+
+        if (StopSearch) then
+            print *, 'No more triangles available'
+            return
+        end if
+       
+       print *, "Found" , iTrianglePosDist(1,iTrianglesStored),&
+                     ", ",iTrianglePosDist(2,iTrianglesStored)
         ! Now, try to search for a core in the triangles that are found by now.
         ! If we not succeed in finding a core the loop continues and calculates
         ! an extra triangle.
-!        do iTrianglesChecked=1, iTrianglesStored-1
+        do iTrianglesChecked=1, iTrianglesStored-1
             ! The 2 triangles should not use a same distance! (except for the shared 
             ! distance) Check this:
-!print *, "Checking a triangle."
-            !if ( CheckTrianglesUseSameDist(iTrianglesChecked, &
-            !                        iTrianglesStored, iTrianglePosDist) ) then
+print *, "Checking core with a 2nd triangle."
+            if ( CheckTrianglesUseSameDist(iTrianglesChecked, &
+                                    iTrianglesStored, iTrianglePosDist) ) then
 !
-!print *, "Found a Triangle!"
+print *, "Found a 2nd Triangle!"
 
                 ! Check whether the 2 triangles form a valid core
-!                if ( CheckCore(Pos(:,1), Pos(:,2),TrianglePos(:,iTrianglesStored), &
-!                             TrianglePos(:,iTrianglesChecked), &
-!                             iConnectingDist)) then                            
-!                    ! We have a core!! 
-!                    ! The correct rotation of the second triangle is supplied by the 
-!                    ! CheckCore routine
-!                    Pos(:,3) = TrianglePos(:,iTrianglesStored)
-!                    Pos(:,4) = TrianglePos(:,iTrianglesChecked)
-!                    DistUsed(iTrianglePosDist(1, iTrianglesStored)) = .true.
-!                    DistUsed(iTrianglePosDist(2, iTrianglesStored)) = .true.
-!                    DistUsed(iTrianglePosDist(1, iTrianglesChecked)) = .true.
-!                    DistUsed(iTrianglePosDist(2, iTrianglesChecked)) = .true.
-!                    DistUsed(iConnectingDist) = .true.
-!                    return
-!                end if
-!            end if
-!        enddo
+                if ( CheckCore(Pos(:,1), Pos(:,2),TrianglePos(:,iTrianglesStored), &
+                             TrianglePos(:,iTrianglesChecked), &
+                             iConnectingDist)) then                            
+                   print *, ' We have a core' 
+                   
+                    ! The correct rotation of the second triangle is supplied by the 
+                    ! CheckCore routine
+                    Pos(:,3) = TrianglePos(:,iTrianglesStored)
+                    Pos(:,4) = TrianglePos(:,iTrianglesChecked)
+                    DistUsed(iTrianglePosDist(1, iTrianglesStored)) = .true.
+                    DistUsed(iTrianglePosDist(2, iTrianglesStored)) = .true.
+                    DistUsed(iTrianglePosDist(1, iTrianglesChecked)) = .true.
+                    DistUsed(iTrianglePosDist(2, iTrianglesChecked)) = .true.
+                    DistUsed(iConnectingDist) = .true.
+                    print *, Pos(:,:)
+                    return
+                end if
+           end if
+        enddo
     enddo
     print *, 'Core not found'
 end subroutine FindCore
@@ -140,13 +151,14 @@ end function CheckCore
 !******************************************************************************
 ! Subroutine of the corefinding: Supplies a new triangle candidate
 subroutine GetTriangle(NewTrianglePoint, iTrianglePosDist, iNewTriangle, &
-                        Dist, DistUsed)
+                        Dist, DistUsed, StopSearch)
     real(8), intent(inout) :: NewTrianglePoint(2)
     integer, intent(inout) :: iTrianglePosDist(:,:) ! Contains the indexes of the distances corresponding to all triangles
     integer, intent(in) :: iNewTriangle 
     !real(8), intent(in) :: Point2(:) !Points that form the basis of the triangle
     real(8), intent(in) :: Dist(:)
     logical, intent(in) :: DistUsed(:)
+    logical, intent(inout) :: StopSearch
     
     integer :: iPreviousDist1, iPreviousDist2
     iPreviousDist1 = iTrianglePosDist(1,iNewTriangle-1)
@@ -156,14 +168,23 @@ subroutine GetTriangle(NewTrianglePoint, iTrianglePosDist, iNewTriangle, &
     ! so First get new distances indices!
     ! goal: supply 1->[1,2], 2->[1,3] 3->[2,3], 4->[1,4], 5->[2,4], etc
     !
-    if (iPreviousDist1 .ge. iPreviousDist2-1) then
+    if (iNewTriangle .eq. 1) then
+        iTrianglePosDist(1,iNewTriangle) = GetFirstNonUsedDistIndex(1, DistUsed)
+        iTrianglePosDist(2,iNewTriangle) = GetFirstNonUsedDistIndex(iTrianglePosDist&
+                                            (1,iNewTriangle), DistUsed)
+       else if (iPreviousDist1 .eq. iPreviousDist2-1) then
         ! We need to start using a new distance!
+        if (iPreviousDist2 .eq. size(Dist)) then
+            StopSearch = .true.
+            return
+        end if
         
         iTrianglePosDist(2,iNewTriangle)= GetFirstNonUsedDistIndex(iPreviousDist2, DistUsed)
         iTrianglePosDist(1,iNewTriangle)= GetFirstNonUsedDistIndex(1, DistUsed)
     else
         ! Increase the first distance
         iTrianglePosDist(1,iNewTriangle) = GetFirstNonUsedDistIndex(iPreviousDist1, DistUsed)
+        iTrianglePosDist(2,iNewTriangle) = iPreviousDist2
     end if
     
     
