@@ -1,6 +1,6 @@
-! **********************************************************************************
+! *********************************************************************
 ! Module containing temporary functions for geometry.f90
-! **********************************************************************************
+! ***********************************************************************
 module TempFcns
     implicit none
 
@@ -10,6 +10,7 @@ module TempFcns
     public CheckTrianglesUseSameDist
 
 contains
+!**********************************************************************
 !
 ! Checks if triangles use the same distance (T if DONT, F is do)
 function CheckTrianglesUseSameDist(iTriangle1, iTriangle2, iTrianglePosDist)
@@ -17,10 +18,19 @@ function CheckTrianglesUseSameDist(iTriangle1, iTriangle2, iTrianglePosDist)
     integer, intent(in) :: iTrianglePosDist(:,:)
     logical CheckTrianglesUseSameDist
     
-    CheckTrianglesUseSameDist = .true.
+    CheckTrianglesUseSameDist = .false.
+    
+    ! checks none of the 4 distance indicies are equal to another
+    if ((iTrianglePosDist(1,iTriangle1) /= (iTrianglePosDist(2,iTriangle1)) .or. ((iTrianglePosDist(1,iTriangle1) /= (iTrianglePosDist(1,iTriangle2)) .or. ((iTrianglePosDist(1,iTriangle1) /= (iTrianglePosDist(2,iTriangle2))) then
+        if (((iTrianglePosDist(2,iTriangle1) /= (iTrianglePosDist(1,iTriangle2)).or.((iTrianglePosDist(2,iTriangle1) /= (iTrianglePosDist(2,iTriangle2))) then
+            if ((iTrianglePosDist(1,iTriangle2) /= (iTrianglePosDist(2,iTriangle2)) then
+                CheckTrianglesUseSameDist = .true.
+            end if
+        end if
+    end if
 end function CheckTrianglesUseSameDist
 !**********************************************************************
-!**********************************************************************************   
+!
 ! Reads 'geometry.params'
 subroutine DistValid(NumPoints, DistGiven, Dist, DistUsed, CanUse, FinalIndex)
     integer, intent(in) :: NumPoints
