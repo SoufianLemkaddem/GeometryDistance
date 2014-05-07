@@ -26,14 +26,16 @@ program geometry
     
 contains
 
-subroutine Initialize
+!******************************************************************************
 ! Main initilizing routine
+subroutine Initialize
+
     call GetParameters(NumPoints)   
     
     allocate(KnownPos(2, NumPoints), Dist(NumPoints*(NumPoints-1)/2), &
             Pos(2, NumPoints), DistUsed(NumPoints*(NumPoints-1)/2))
     allocate(TrianglePos(2,NumPoints**2))
-    allocate(iTrianglePosDist(2,NumPoints**2)) ! TODO size of array?
+    allocate(iTrianglePosDist(2,10*NumPoints**2)) ! TODO size of array?
     
     KnownPos = 0d0
     Dist = 0d0
@@ -44,6 +46,8 @@ subroutine Initialize
     
 end subroutine Initialize
 
+!******************************************************************************
+! Corefinding routine
 subroutine FindCore
     integer :: iTrianglesStored, iTrianglesChecked,iConnectingDist
      
@@ -55,7 +59,9 @@ subroutine FindCore
     ! Loop through all triangle candidates
     ! If we find that two of the triangles 'match', we have our core.
     do iTrianglesStored=1, size(TrianglePos, 2)
-        ! Get a new triangle candidate, and store it
+        ! Get a new triangle candidate, and add it to TrianglePos (containing 
+        ! the third points of the triangle candidates) and store the indices of
+        ! the used distances for the new triangle in iTrianglePosDist.
         call GetTriangle(   TrianglePos(:,iTrianglesStored), & !New triangle
                             iTrianglePosDist(:,:), & !New dist indices
                             iTrianglesStored, Dist, DistUsed) !Inputs
@@ -64,16 +70,17 @@ subroutine FindCore
         ! If we not succeed in finding a core the loop continues and calculates
         ! an extra triangle.
         do iTrianglesChecked=1, iTrianglesStored-1
-            ! The 2 triangles should not use a same distance! (except for the first distance)
+            ! The 2 triangles should not use a same distance! (except for the shared 
+            ! distance) Check this:
             if ( CheckTrianglesUseSameDist(iTrianglesChecked, &
                                     iTrianglesStored, iTrianglePosDist) ) then
-                ! Check wether the 2 triangles form a valid core
+                ! Check whether the 2 triangles form a valid core
                 if ( CheckCore(Pos(:,1), Pos(:,2),TrianglePos(:,iTrianglesStored), &
                              TrianglePos(:,iTrianglesChecked), &
                              iConnectingDist)) then                            
                     ! We have a core!! 
-                    ! The correct rotation of the second triangle is supplied by the checking
-                    ! routine
+                    ! The correct rotation of the second triangle is supplied by the 
+                    ! CheckCore routine
                     Pos(:,3) = TrianglePos(:,iTrianglesStored)
                     Pos(:,4) = TrianglePos(:,iTrianglesChecked)
                     DistUsed(iTrianglePosDist(1, iTrianglesStored)) = .true.
@@ -86,9 +93,11 @@ subroutine FindCore
             end if
         enddo
     enddo
-    print *, 'Core not found: increase array size.'
+    print *, 'Core not found'
 end subroutine FindCore
 
+!******************************************************************************
+! Core finding subroutine that checks whether we have found a core
 function CheckCore(Point1, Point2, Point3, Point4, iConnectingDist)
     real(8), intent(inout) :: Point4(:)
     real(8), intent(in) :: Point1(:), Point2(:), Point3(:)
@@ -98,16 +107,11 @@ function CheckCore(Point1, Point2, Point3, Point4, iConnectingDist)
     logical :: GoodCore
     logical :: CheckCore
     
-  
-    
-    P4(:,1)=Point4
-    
+    ! Check for all 4 possible versions of the second triangle.
+    ! If we have a match, overwrite Point4 with the matching point
+    P4(:,1)=Point4 !We already have the first point
+    call GetAlternativeP3(P4(:,2:4), Point1, Point2, Point4) !get 3 other points
    
-    call GetAlternativeP3(P4(:,2:4), Point1, Point2, Point4)
-                            !TODO CheckMatch Should check for all 4? 
-                             ! possible versions of the second triangle and 
-                             ! overwrite Point4 of one of the other 3 is a valid point!!
-    
     do iP4=1,4
         call CalcDistance(Point3, P4(:,iP4), distance)
         call DistValid(NumPoints, distance, Dist, DistUsed, GoodCore, iConnectingDist)
@@ -121,6 +125,8 @@ function CheckCore(Point1, Point2, Point3, Point4, iConnectingDist)
     
 end function CheckCore
 
+!******************************************************************************
+! Subroutine of the corefinding: Supplies a new triangle candidate
 subroutine GetTriangle(NewTrianglePoint, iTrianglePosDist, iNewTriangle, &
                         Dist, DistUsed)
     real(8), intent(inout) :: NewTrianglePoint(2)
