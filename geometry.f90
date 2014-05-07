@@ -6,6 +6,7 @@ program geometry
     use point
     use plotters
     use testpoints
+    use TempFcns
     implicit none
     
     ! Variables, see geometry.params for the user-defined parameters
@@ -88,9 +89,12 @@ end subroutine FindCore
 function CheckCore(Point3, Point4, iConnectingDist)
     real(8), intent(inout) :: Point3(:), Point4(:)
     integer, intent(out) :: iConnectingDist
-    logical :: CheckCore
-    
     real(8) :: distance
+    logical :: GoodCore
+    logical :: CheckCore
+  
+    
+    
     
     call CalcDistance(Point3, Point4, distance)
     
@@ -98,7 +102,9 @@ function CheckCore(Point3, Point4, iConnectingDist)
                              ! possible versions of the second triangle and 
                              ! overwrite Point4!!
   
-    call DistValid(NumPoints, distance, Dist, DistUsed, CheckCore)
+    call DistValid(NumPoints, distance, Dist, DistUsed, GoodCore)
+    
+    CheckCore = .false.
     
 end function CheckCore
 
