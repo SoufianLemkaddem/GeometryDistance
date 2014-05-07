@@ -144,7 +144,7 @@ subroutine GetTriangle(NewTrianglePoint, iTrianglePosDist, iNewTriangle, &
     ! so First get new distances indices!
     ! goal: supply 1->[1,2], 2->[1,3] 3->[2,3], 4->[1,4], 5->[2,4], etc
     !
-    if (iPreviousDist1 .eq. iPreviousDist2-1) then
+    if (iPreviousDist1 .ge. iPreviousDist2-1) then
         ! We need to start using a new distance!
         
         iTrianglePosDist(2,iNewTriangle)= GetFirstNonUsedDistIndex(iPreviousDist2, DistUsed)
