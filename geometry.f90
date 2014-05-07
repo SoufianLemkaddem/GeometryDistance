@@ -43,6 +43,8 @@ subroutine Initialize
     call MainSetup(NumPoints, KnownPos, Dist)
     
     DistUsed = .false.
+
+    Pos = 0
     
 end subroutine Initialize
 
@@ -62,36 +64,41 @@ subroutine FindCore
         ! Get a new triangle candidate, and add it to TrianglePos (containing 
         ! the third points of the triangle candidates) and store the indices of
         ! the used distances for the new triangle in iTrianglePosDist.
+print *, "Finding a Triangle."
         call GetTriangle(   TrianglePos(:,iTrianglesStored), & !New triangle
                             iTrianglePosDist(:,:), & !New dist indices
                             iTrianglesStored, Dist, DistUsed) !Inputs
-        
+print *, "Found" , iTrianglePosDist(1,iTrianglesStored), ", ",iTrianglePosDist(2,iTrianglesStored)
         ! Now, try to search for a core in the triangles that are found by now.
         ! If we not succeed in finding a core the loop continues and calculates
         ! an extra triangle.
-        do iTrianglesChecked=1, iTrianglesStored-1
+!        do iTrianglesChecked=1, iTrianglesStored-1
             ! The 2 triangles should not use a same distance! (except for the shared 
             ! distance) Check this:
-            if ( CheckTrianglesUseSameDist(iTrianglesChecked, &
-                                    iTrianglesStored, iTrianglePosDist) ) then
+!print *, "Checking a triangle."
+            !if ( CheckTrianglesUseSameDist(iTrianglesChecked, &
+            !                        iTrianglesStored, iTrianglePosDist) ) then
+!
+!print *, "Found a Triangle!"
+
                 ! Check whether the 2 triangles form a valid core
-                if ( CheckCore(Pos(:,1), Pos(:,2),TrianglePos(:,iTrianglesStored), &
-                             TrianglePos(:,iTrianglesChecked), &
-                             iConnectingDist)) then                            
-                    ! We have a core!! 
-                    ! The correct rotation of the second triangle is supplied by the 
-                    ! CheckCore routine
-                    Pos(:,3) = TrianglePos(:,iTrianglesStored)
-                    Pos(:,4) = TrianglePos(:,iTrianglesChecked)
-                    DistUsed(iTrianglePosDist(1, iTrianglesStored)) = .true.
-                    DistUsed(iTrianglePosDist(2, iTrianglesStored)) = .true.
-                    DistUsed(iTrianglePosDist(1, iTrianglesChecked)) = .true.
-                    DistUsed(iTrianglePosDist(2, iTrianglesChecked)) = .true.
-                    DistUsed(iConnectingDist) = .true.
-                    return
-                end if
-            end if
-        enddo
+!                if ( CheckCore(Pos(:,1), Pos(:,2),TrianglePos(:,iTrianglesStored), &
+!                             TrianglePos(:,iTrianglesChecked), &
+!                             iConnectingDist)) then                            
+!                    ! We have a core!! 
+!                    ! The correct rotation of the second triangle is supplied by the 
+!                    ! CheckCore routine
+!                    Pos(:,3) = TrianglePos(:,iTrianglesStored)
+!                    Pos(:,4) = TrianglePos(:,iTrianglesChecked)
+!                    DistUsed(iTrianglePosDist(1, iTrianglesStored)) = .true.
+!                    DistUsed(iTrianglePosDist(2, iTrianglesStored)) = .true.
+!                    DistUsed(iTrianglePosDist(1, iTrianglesChecked)) = .true.
+!                    DistUsed(iTrianglePosDist(2, iTrianglesChecked)) = .true.
+!                    DistUsed(iConnectingDist) = .true.
+!                    return
+!                end if
+!            end if
+!        enddo
     enddo
     print *, 'Core not found'
 end subroutine FindCore
