@@ -11,12 +11,13 @@ module TempFcns
 contains
 ! **********************************************************************************   
 ! Reads 'geometry.params'
-subroutine DistValid(NumPoints, DistGiven, Dist, DistUsed, CanUse)
+subroutine DistValid(NumPoints, DistGiven, Dist, DistUsed, CanUse, FinalIndex)
     integer, intent(in) :: NumPoints
     real(8), intent(in) :: DistGiven !Distance to check
     real(8), intent(in) :: Dist(:)
     logical, intent(in) :: DistUsed(:)
     logical, intent(inout) :: CanUse !True if distance is avaliable
+    integer, intent(inout) :: FinalIndex !Index of the found Pt.
     integer :: TotLen
     integer :: Start, Finish, RemRange, Midpt
 
@@ -38,8 +39,10 @@ subroutine DistValid(NumPoints, DistGiven, Dist, DistUsed, CanUse)
 
     if((DistUsed(Midpt)) .or. (Dist(Midpt) /= DistGiven))then
         CanUse = .false.
+	FinalIndex = 0
     else
         CanUse = .true.
+	FinalIndex = Midpt
     end if
 end subroutine DistValid
 !**********************************************************************
