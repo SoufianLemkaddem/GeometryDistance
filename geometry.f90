@@ -29,7 +29,7 @@ contains
 !******************************************************************************
 ! Main initilizing routine
 subroutine Initialize
-
+! Main initilizing routine
     call GetParameters(NumPoints)   
     
     allocate(KnownPos(2, NumPoints), Dist(NumPoints*(NumPoints-1)/2), &
@@ -112,6 +112,11 @@ function CheckCore(Point1, Point2, Point3, Point4, iConnectingDist)
     P4(:,1)=Point4 !We already have the first point
     call GetAlternativeP3(P4(:,2:4), Point1, Point2, Point4) !get 3 other points
    
+    call GetAlternativeP3(P4(:,2:4), Point1, Point2, Point4)
+                            !TODO CheckMatch Should check for all 4? 
+                             ! possible versions of the second triangle and 
+                             ! overwrite Point4 of one of the other 3 is a valid point!!
+    
     do iP4=1,4
         call CalcDistance(Point3, P4(:,iP4), distance)
         call DistValid(NumPoints, distance, Dist, DistUsed, GoodCore, iConnectingDist)
@@ -160,6 +165,5 @@ subroutine GetTriangle(NewTrianglePoint, iTrianglePosDist, iNewTriangle, &
     call Newpoint(Dist(1), Dist(iTrianglePosDist(1, iNewTriangle)), Dist(iTrianglePosDist(2, iNewTriangle)), NewTrianglePoint)
     
 end subroutine GetTriangle
-
-
+!**********************************************************************
 end program geometry
