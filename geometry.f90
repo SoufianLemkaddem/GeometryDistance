@@ -102,7 +102,7 @@ function CheckCore(Point1, Point2, Point3, Point4, iConnectingDist)
     
     P4(:,1)=Point4
     
-    
+   
     call GetAlternativeP3(P4(:,2:4), Point1, Point2, Point4)
                             !TODO CheckMatch Should check for all 4? 
                              ! possible versions of the second triangle and 
