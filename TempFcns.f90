@@ -7,9 +7,20 @@ module TempFcns
     private
 
     public DistValid
+    public CheckTrianglesUseSameDist
 
 contains
-! **********************************************************************************   
+!
+! Checks if triangles use the same distance (T if DONT, F is do)
+function CheckTrianglesUseSameDist(iTriangle1, iTriangle2, iTrianglePosDist)
+    integer, intent(in) :: iTriangle1, iTriangle2
+    integer, intent(in) :: iTrianglePosDist(:,:)
+    logical CheckTrianglesUseSameDist
+    
+    CheckTrianglesUseSameDist = .true.
+end function CheckTrianglesUseSameDist
+!**********************************************************************
+!**********************************************************************************   
 ! Reads 'geometry.params'
 subroutine DistValid(NumPoints, DistGiven, Dist, DistUsed, CanUse, FinalIndex)
     integer, intent(in) :: NumPoints
@@ -39,14 +50,11 @@ subroutine DistValid(NumPoints, DistGiven, Dist, DistUsed, CanUse, FinalIndex)
 
     if((DistUsed(Midpt)) .or. (Dist(Midpt) /= DistGiven))then
         CanUse = .false.
-	FinalIndex = 0
+        FinalIndex = 0
     else
         CanUse = .true.
-	FinalIndex = Midpt
+        FinalIndex = Midpt
     end if
 end subroutine DistValid
 !**********************************************************************
-function CheckTrianglesUseSameDist(iTriangle1, iTriangle2, iTrianglePosDist(:,:))
-    
-end subroutine CheckTrianglesUseSameDist
 end module
