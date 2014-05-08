@@ -75,8 +75,8 @@ subroutine DistValid(NumPoints, DistGiven, Dist, DistUsed, CanUse, FinalIndex, M
         Midpt = (Start+Finish)/2
     end do
 
-print *, DistGiven
-print *, Dist(Midpt)
+!print *, DistGiven
+!print *, Dist(Midpt)
 
     if((DistUsed(Midpt)) .or. ((Dist(Midpt) > DistGiven*(1.0d0+Margin)).or.(Dist(Midpt) < DistGiven*(1.0d0-Margin))))then
         CanUse = .false.
@@ -84,6 +84,8 @@ print *, Dist(Midpt)
     else
         CanUse = .true.
         FinalIndex = Midpt
+        print *, 'Valid Distance found! Data:', Midpt, Dist(Midpt)
+        print *, 'Calc distance:', DistGiven
     end if
 end subroutine DistValid
 !**********************************************************************
@@ -109,13 +111,13 @@ end function GetFirstNonUsedDistIndex
 !**********************************************************************
 !
 ! Determine all used distances
-subroutine CorrDistUsed(NumPointsFound, Dist, Pos, DistUsed)
+subroutine CorrDistUsed(NumPointsFound, Dist, Pos, DistUsed, Margin)
     integer, intent(in) :: NumPointsFound
-    real(8), intent(in) :: Dist(:), Pos(:,:)
+    real(8), intent(in) :: Dist(:), Pos(:,:), Margin
     logical, intent(inout) :: DistUsed(:)
     integer :: CDUIter
     real(8) :: DistTemp
-    integer :: Start, Finish, RemRange, Midpt
+    integer :: i, Start, Finish, RemRange, Midpt
 
     Start = 1
     Finish = size(Dist, 1)
@@ -125,17 +127,12 @@ subroutine CorrDistUsed(NumPointsFound, Dist, Pos, DistUsed)
     do CDUIter = 1, NumPointsFound-1
         call CalcDistance(Pos(:,NumPointsFound),Pos(:,CDUIter), DistTemp)
 
-        do while((Dist(Midpt) /= DistTemp).and.(RemRange > 0))
-            if(DistTemp > Dist(Midpt))then
-                Start = Midpt+1
-            else
-                Finish = Midpt-1
+        do i = 1, Finish
+            if (Dist(i) < DistTemp*(1.0d0+Margin) .and. Dist(i)>DistTemp*(1.0d0-Margin)) then
+                print *, 'Distance eliminated', i
+                DistUsed(i)=.true.
             end if
-                RemRange = Finish-Start
-                Midpt = (Start+Finish)/2
         end do
-
-        DistUsed(Midpt) = .true.
     end do
 end subroutine CorrDistUsed
 !**********************************************************************
