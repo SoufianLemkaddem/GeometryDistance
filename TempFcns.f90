@@ -65,6 +65,9 @@ subroutine DistValid(NumPoints, DistGiven, Dist, DistUsed, CanUse, FinalIndex)
         Midpt = (Start+Finish)/2
     end do
 
+print *, DistGiven
+print *, Dist(Midpt)
+
     if((DistUsed(Midpt)) .or. (Dist(Midpt) /= DistGiven))then
         CanUse = .false.
         FinalIndex = 0
@@ -93,5 +96,37 @@ function GetFirstNonUsedDistIndex(iPreviousDist2, DistUsed)
         end if
     end do
 end function GetFirstNonUsedDistIndex
+!**********************************************************************
+!
+! Determine all used distances
+subroutine CorrDistUsed(NumPointsFound, Dist, Pos, DistUsed)
+    integer, intent(in) :: NumPointsFound
+    real(8), intent(in) :: Dist(:), Pos(:,:)
+    logical, intent(inout) :: DistUsed(:)
+    integer :: CDUIter
+    real(8) :: DistTemp
+    integer :: Start, Finish, RemRange, Midpt
+
+    Start = 1
+    Finish = size(Dist, 1)
+    RemRange = Finish - Start
+    Midpt = (Start+Finish)/2
+
+    do CDUIter = 1, NumPointsFound-1
+        call CalcDist(Pos(:,NumPointsFound),Pos(:,CDUIter), DistTemp)
+
+        do while((Dist(Midpt) /= DistTemp).and.(RemRange > 0))
+            if(DistTemp > Dist(Midpt))then
+                Start = Midpt+1
+            else
+                Finish = Midpt-1
+            end if
+                RemRange = Finish-Start
+                Midpt = (Start+Finish)/2
+        end do
+
+        DistUsed(Midpt) = .true.
+    end do
+end subroutine CorrDistUsed
 !**********************************************************************
 end module
