@@ -135,6 +135,7 @@ print *, "Finding a Triangle."
             print *, ' Checking triangle candidate #', iTrianglesStored
             print *, Pos(:,3)
             print *, TrianglePos(:,iTrianglesStored)
+            print *, 'Distances'
             if (TrianglesValid(iTrianglesStored)) then
                 print *, 'Triangle valid'
             if (CheckCore(Pos(:,2), Pos(:,3), &
@@ -184,6 +185,7 @@ function CheckCore(Point2, Point3, Point4, iConnectingDist)
         call CalcDistance(Point3, P4(:,iP4), distance)
         call DistValid(NumPoints, distance, Dist, DistUsed, GoodCore, &
                             iConnectingDist, Margin)
+        
         if(GoodCore) then
             Point4=P4(:,iP4)
             CheckCore = .true. ! We found the core!
