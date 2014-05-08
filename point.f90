@@ -11,7 +11,7 @@ public :: Newpoint, CalcDistance, GetAlternativeP3
 
 contains
 
-! Calculates newpoint when 2 distances are given
+! Calculates new point when 2 distances are given
 subroutine Newpoint(disti, dist1, dist2, p3)
 
 real(8), intent(in) :: disti, dist1, dist2
@@ -38,6 +38,8 @@ real(8), intent(inout) :: dist
 dist = sqrt((p1(1) - p2(1))**2 + (p1(2) - p2(2))**2)
 
 end subroutine
+
+
 
 subroutine GetAlternativeP3(RefP, p2, p3)
 
