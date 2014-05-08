@@ -86,7 +86,7 @@ function GetFirstNonUsedDistIndex(iPreviousDist2, DistUsed)
 
     GetFirstNonUsedDistIndex = 1
 
-    do NUDIter = iPreviousDist2, MaxLen
+    do NUDIter = iPreviousDist2+1, MaxLen
         if(.not.(DistUsed(NUDIter))) then
             GetFirstNonUsedDistIndex = NUDIter
             exit
