@@ -26,16 +26,15 @@ contains
     subroutine plot_Positions (Pointpos)
         real(8), intent(in) :: Pointpos(:, :)
         integer :: i
-        
-        !call pljoin(0d0, 0d0, -10d0, 0d0)
+ 
+		!pljoin(0d0, 0d0, -10d0, 0dcall, 0)
         !call pljoin(-10d0, 0d0, -10d0, -10d0)
         !call pljoin(-10d0, -10d0, 0d0, -10d0)
         !call pljoin(0d0, -10d0, 0d0, 0d0)
         
-        ! Draw molecules
-        do i = 1, size(PointPos, 1)
+        do i = 1, size(PointPos, 2)
             call plcol0(13)
-            call plpoin([PointPos(i,1)], [PointPos(i,2)], 21)
+            call plpoin([PointPos(1,i)], [PointPos(2,i)], 21)
         end do
 
         ! Draw lines
@@ -70,10 +69,10 @@ contains
         !call plscol0(7, 255, 0, 255)    ! magenta
         !call plscol0(8, 128, 128, 128)  ! gray
         !call plscol0(9, 0, 0, 0)        ! black
-        maxX = maxval([PointPos(:,1)])
-        minX = minval([PointPos(:,1)])
-        maxY = maxval([PointPos(:,2)])
-        minY = minval([PointPos(:,2)])
+        maxX = maxval([PointPos(1,:)])
+        minX = minval([PointPos(1,:)])
+        maxY = maxval([PointPos(2,:)])
+        minY = minval([PointPos(2,:)])
         margin = 10d0
     
         call plenv(minX-margin, maxX+margin, minY-margin, maxY+margin, 1, 0)

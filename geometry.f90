@@ -23,8 +23,9 @@ program geometry
     print *, Dist(:)
     call FindCore
     
-    call GeometricDraw(Pos(:,1:4))
-    print *, 'plotting reached'
+    call GeometricDraw(Pos)
+
+	call plot_close
     
 contains
 
