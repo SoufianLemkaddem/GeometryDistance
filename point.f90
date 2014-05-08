@@ -7,7 +7,7 @@ module point
 
     implicit none
 
-public :: Newpoint, CalcDistance
+public :: Newpoint, CalcDistance, GetAlternativeP3
 
 contains
 
@@ -39,9 +39,9 @@ dist = sqrt((p1(1) - p2(1))**2 + (p1(2) - p2(2))**2)
 
 end subroutine
 
-subroutine GetAlternativeP3(RefP, p1, p2, p3)
+subroutine GetAlternativeP3(RefP, p2, p3)
 
-real(8), intent(in) :: p1(2), p2(2), p3(2)
+real(8), intent(in) :: p2(2), p3(2)
 real(8), intent(inout) :: RefP(2,3)
 
 RefP(1,1) = p2(1) - p3(1)
