@@ -17,9 +17,7 @@ program geometry
     logical, allocatable    :: TrianglesValid(:)
     integer, allocatable    :: iTrianglePosDist(:,:)
     logical, allocatable    :: DistUsed(:)
-    real(8) :: NewTrianglePoint(2)
-    !real(8) :: NewTrianglePoint(2,3)
-
+   
     call Initialize
     
     print *, Dist(:)
@@ -60,11 +58,13 @@ end subroutine Initialize
 subroutine FindCore
     integer :: iTrianglesStored, iTrianglesChecked,iConnectingDist
     logical :: StopSearch = .false.
+    integer :: NumPointsFound
      
     ! Add first segment 
     Pos(:,1) = 0
     Pos(:,2) = [Dist(1), 0.d0]
     DistUsed(1) = .true.
+    NumPointsFound = 2
     
     ! Loop through all triangle candidates
     ! If we find that two of the triangles 'match', we have our core.
@@ -104,19 +104,27 @@ print *, "Found a 2nd Triangle!"
                 if ( CheckCore(Pos(:,1), Pos(:,2),TrianglePos(:,iTrianglesStored), &
                              TrianglePos(:,iTrianglesChecked), &
                              iConnectingDist)) then                            
-                   print *, ' We have a core'
-                   
-                    ! The correct rotation of the second triangle is supplied by the 
-                    ! CheckCore routine
-                    Pos(:,3) = TrianglePos(:,iTrianglesStored)
-                    Pos(:,4) = TrianglePos(:,iTrianglesChecked)
-                    DistUsed(iTrianglePosDist(1, iTrianglesStored)) = .true.
-                    DistUsed(iTrianglePosDist(2, iTrianglesStored)) = .true.
-                    DistUsed(iTrianglePosDist(1, iTrianglesChecked)) = .true.
-                    DistUsed(iTrianglePosDist(2, iTrianglesChecked)) = .true.
-                    DistUsed(iConnectingDist) = .true.
-                    print "(4F12.4)", Pos
-                    return
+                    if (NumPointsFound == 2) then
+                        NumPointsFound = 4
+                        print *, ' We have a core'
+                        ! The correct rotation of the second triangle is supplied by the 
+                        ! CheckCore routine
+                        Pos(:,3) = TrianglePos(:,iTrianglesStored)
+                        Pos(:,4) = TrianglePos(:,iTrianglesChecked)
+                        DistUsed(iTrianglePosDist(1, iTrianglesStored)) = .true.
+                        DistUsed(iTrianglePosDist(2, iTrianglesStored)) = .true.
+                        DistUsed(iTrianglePosDist(1, iTrianglesChecked)) = .true.
+                        DistUsed(iTrianglePosDist(2, iTrianglesChecked)) = .true.
+                        DistUsed(iConnectingDist) = .true.
+                        print "(4F12.4)", Pos
+                        !return
+                    else
+                        print *, ' We have an extra point'
+                        NumPointsFound = NumPointsFound + 1
+                        Pos(:,NumPointsFound) = TrianglePos(:,iTrianglesChecked)
+                        DistUsed(iTrianglePosDist(1, iTrianglesStored)) = .true.
+                        DistUsed(iTrianglePosDist(2, iTrianglesStored)) = .true.
+                    endif
                 end if
            end if
         enddo
