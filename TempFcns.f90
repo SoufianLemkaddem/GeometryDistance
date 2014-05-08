@@ -57,7 +57,7 @@ subroutine DistValid(NumPoints, DistGiven, Dist, DistUsed, CanUse, FinalIndex, M
     RemRange = Finish - Start
     Midpt = (Start+Finish)/2
 
-    do while((Dist(Midpt) < DistGiven*(1.0d0+Margin)).and.(Dist(Midpt) > DistGiven*(1.0d0-Margin)).and.(RemRange > 0))
+    do while((Dist(Midpt) /= DistGiven))!< DistGiven*(1.0d0+Margin)).and.(Dist(Midpt) > DistGiven*(1.0d0-Margin)).and.(RemRange > 0))
         if(DistGiven>Dist(Midpt))then
             Start = Midpt+1
         else
