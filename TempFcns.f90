@@ -48,7 +48,7 @@ subroutine DistValid(NumPoints, DistGiven, Dist, DistUsed, CanUse, FinalIndex, M
     logical, intent(in) :: DistUsed(:)
     logical, intent(inout) :: CanUse !True if distance is avaliable
     integer, intent(inout) :: FinalIndex !Index of the found Pt.
-    integer :: TotLen
+    integer :: TotLen, i
     integer :: Start, Finish, RemRange, Midpt
 
     TotLen = NumPoints*(NumPoints-1)/2
@@ -58,6 +58,14 @@ subroutine DistValid(NumPoints, DistGiven, Dist, DistUsed, CanUse, FinalIndex, M
     Midpt = (Start+Finish)/2
 
     do while(((Dist(Midpt) > DistGiven*(1.0d0+Margin)).or.(Dist(Midpt) < DistGiven*(1.0d0-Margin))).and.(RemRange > 0))
+!print *, 'Max',DistGiven*(1.0d0+Margin)
+!print *, 'MIDPT',Dist(Midpt)
+!print *, 'Min',DistGiven*(1.0d0-Margin)
+!    do i = 1, TotLen
+!        if (((Dist(i) < DistGiven*(1.0d0+Margin)).and.(Dist(i) > DistGiven*(1.0d0-Margin)))) then
+!            CanUse = .false.
+!            exit
+!        end if
         if(DistGiven>Dist(Midpt))then
             Start = Midpt+1
         else
@@ -70,7 +78,7 @@ subroutine DistValid(NumPoints, DistGiven, Dist, DistUsed, CanUse, FinalIndex, M
 !print *, DistGiven
 !print *, Dist(Midpt)
 
-    if((DistUsed(Midpt)) .or. (Dist(Midpt) /= DistGiven))then
+    if((DistUsed(Midpt)) .or. ((Dist(Midpt) > DistGiven*(1.0d0+Margin)).or.(Dist(Midpt) < DistGiven*(1.0d0-Margin))))then
         CanUse = .false.
         FinalIndex = 0
     else
