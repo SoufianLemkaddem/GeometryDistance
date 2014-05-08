@@ -57,7 +57,7 @@ subroutine DistValid(NumPoints, DistGiven, Dist, DistUsed, CanUse, FinalIndex, M
     RemRange = Finish - Start
     Midpt = (Start+Finish)/2
 
-    do while((Dist(Midpt) /= DistGiven).and.(RemRange > 0))!< DistGiven*(1.0d0+Margin)).and.(Dist(Midpt) > DistGiven*(1.0d0-Margin)).and.(RemRange > 0))
+    do while((Dist(Midpt) < DistGiven*(1.0d0+Margin)).and.(Dist(Midpt) > DistGiven*(1.0d0-Margin)).and.(RemRange > 0))
         if(DistGiven>Dist(Midpt))then
             Start = Midpt+1
         else
@@ -67,8 +67,8 @@ subroutine DistValid(NumPoints, DistGiven, Dist, DistUsed, CanUse, FinalIndex, M
         Midpt = (Start+Finish)/2
     end do
 
-print *, DistGiven
-print *, Dist(Midpt)
+!print *, DistGiven
+!print *, Dist(Midpt)
 
     if((DistUsed(Midpt)) .or. (Dist(Midpt) /= DistGiven))then
         CanUse = .false.
