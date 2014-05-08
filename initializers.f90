@@ -16,11 +16,13 @@ module initializers
 contains
 ! **********************************************************************************   
 ! Reads 'geometry.params'
-subroutine GetParameters(NumPoints)
+subroutine GetParameters(NumPoints, Margin)
     integer, intent(inout) :: NumPoints
+    real(8), intent(inout) :: Margin
 
     open(12, file="geometry.params")
     read(12,*) NumPoints
+    read(12,*) Margin
     close(12)
 end subroutine GetParameters
 !**********************************************************************
