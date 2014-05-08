@@ -11,6 +11,7 @@ program geometry
     
     ! Variables, see geometry.params for the user-defined parameters
     integer                 :: NumPoints
+    real(8)                 :: Margin
     
     real(8), allocatable    :: KnownPos(:,:), Dist(:), Pos(:,:)
     real(8), allocatable    :: TrianglePos(:,:)
@@ -33,7 +34,7 @@ contains
 ! Main initilizing routine
 subroutine Initialize
 ! Main initilizing routine
-    call GetParameters(NumPoints)   
+    call GetParameters(NumPoints, Margin)   
     
     allocate(KnownPos(2, NumPoints), Dist(NumPoints*(NumPoints-1)/2), &
             Pos(2, NumPoints), DistUsed(NumPoints*(NumPoints-1)/2))
@@ -113,7 +114,7 @@ print *, "Finding a Triangle."
                                  TrianglePos(:,iTrianglesChecked), &
                                  iConnectingDist)) then                            
                             NumPointsFound = 4
-                            print *, ' We have a core'
+                            print *, ' We have a core with triangles:', iTrianglesStored, iTrianglesChecked
                             ! The correct rotation of the second triangle is 
                             ! supplied by the 
                             ! CheckCore routine
@@ -131,15 +132,26 @@ print *, "Finding a Triangle."
                 end if
             enddo
         else if (CoreFound .eqv. .true.) then
-            print *, ' Checking triangle candidate'
-            if (CheckCore(Pos(:,2),TrianglePos(:,iTrianglesStored), &
-                                 Pos(:,3), &
-                                 iConnectingDist)) then
+            print *, ' Checking triangle candidate #', iTrianglesStored
+            print *, Pos(:,3)
+            print *, TrianglePos(:,iTrianglesStored)
+            if (TrianglesValid(iTrianglesStored)) then
+                print *, 'Triangle valid'
+            if (CheckCore(Pos(:,2), Pos(:,3), &
+                            TrianglePos(:,iTrianglesStored), &
+                                 iConnectingDist) ) then
                 print *, ' Found point number ', NumPointsFound                
                 NumPointsFound = NumPointsFound + 1
                 Pos(:,NumPointsFound) = TrianglePos(:,iTrianglesStored)
+                 
                 call CorrDistUsed(NumPointsFound, Dist, Pos, DistUsed)
-            end if
+                       if (NumPointsFound .eq. NumPoints) then
+                    print *, 'All points found'
+                    return
+                        end if
+
+                    end if
+               endif
         endif
     enddo
     !print *, 'Core not found'
@@ -164,10 +176,14 @@ function CheckCore(Point2, Point3, Point4, iConnectingDist)
                             !TODO CheckMatch Should check for all 4? 
                              ! possible versions of the second triangle and 
                              ! overwrite Point4 of one of the other 3 is a valid point!!
+    print *, P4(:,2)
+    print *, P4(:,3)
+    print *, P4(:,4)
     
     do iP4=1,4
         call CalcDistance(Point3, P4(:,iP4), distance)
-        call DistValid(NumPoints, distance, Dist, DistUsed, GoodCore, iConnectingDist)
+        call DistValid(NumPoints, distance, Dist, DistUsed, GoodCore, &
+                            iConnectingDist, Margin)
         if(GoodCore) then
             Point4=P4(:,iP4)
             CheckCore = .true. ! We found the core!
@@ -199,24 +215,38 @@ subroutine GetTriangle(NewTrianglePoint, iTrianglePosDist, iNewTriangle, &
     ! goal: supply 1->[1,2], 2->[1,3] 3->[2,3], 4->[1,4], 5->[2,4], etc
     !
     if (iNewTriangle .eq. 1) then
-        print *, 'first if'
+        
         iTrianglePosDist(1,iNewTriangle) = GetFirstNonUsedDistIndex(1, DistUsed)
         iTrianglePosDist(2,iNewTriangle) = GetFirstNonUsedDistIndex(iTrianglePosDist&
                                             (1,iNewTriangle), DistUsed)
         
         print *,  iTrianglePosDist(1,iNewTriangle), iTrianglePosDist(2,iNewTriangle)
-       else if (iPreviousDist1 .eq. iPreviousDist2-1) then
+    else if (iPreviousDist1 .eq. iPreviousDist2-1) then
+        print *, '2nd if'
         ! We need to start using a new distance!
         if (iPreviousDist2 .eq. size(Dist)) then
             StopSearch = .true.
             return
         end if
         
-        iTrianglePosDist(2,iNewTriangle)= GetFirstNonUsedDistIndex(iPreviousDist2, DistUsed)
-        iTrianglePosDist(1,iNewTriangle)= GetFirstNonUsedDistIndex(1, DistUsed)
+        iTrianglePosDist(1,iNewTriangle)= &
+                    GetFirstNonUsedDistIndex(1, DistUsed)
+        iTrianglePosDist(2,iNewTriangle)= &
+                    GetFirstNonUsedDistIndex(iPreviousDist2, DistUsed)
+        
+        if (iTrianglePosDist(1,iNewTriangle) .eq. &
+                    iTrianglePosDist(2,iNewTriangle)) then
+              iTrianglePosDist(2,iNewTriangle)=GetFirstNonUsedDistIndex(&
+                        iTrianglePosDist(1,iNewTriangle), DistUsed)
+        endif
+                    
+        
+        !print *, iTrianglePosDist(2,iNewTriangle),  iTrianglePosDist(1,iNewTriangle)
+ 
     else
         ! Increase the first distance
-        iTrianglePosDist(1,iNewTriangle) = GetFirstNonUsedDistIndex(iPreviousDist1, DistUsed)
+        iTrianglePosDist(1,iNewTriangle) = &
+                    GetFirstNonUsedDistIndex(iPreviousDist1, DistUsed)
         iTrianglePosDist(2,iNewTriangle) = iPreviousDist2
     end if
     
