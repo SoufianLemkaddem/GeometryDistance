@@ -2,6 +2,7 @@
 ! Module containing temporary functions for geometry.f90
 ! *********************************************************************
 module TempFcns
+    use point
     implicit none
 
     private
@@ -9,6 +10,7 @@ module TempFcns
     public DistValid
     public CheckTrianglesUseSameDist
     public GetFirstNonUsedDistIndex
+    public CorrDistUsed
 
 contains
 !**********************************************************************
@@ -113,7 +115,7 @@ subroutine CorrDistUsed(NumPointsFound, Dist, Pos, DistUsed)
     Midpt = (Start+Finish)/2
 
     do CDUIter = 1, NumPointsFound-1
-        call CalcDist(Pos(:,NumPointsFound),Pos(:,CDUIter), DistTemp)
+        call CalcDistance(Pos(:,NumPointsFound),Pos(:,CDUIter), DistTemp)
 
         do while((Dist(Midpt) /= DistTemp).and.(RemRange > 0))
             if(DistTemp > Dist(Midpt))then
