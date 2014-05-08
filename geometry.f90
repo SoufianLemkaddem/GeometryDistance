@@ -20,8 +20,8 @@ program geometry
     logical, allocatable    :: DistUsed(:)
    
     call Initialize
-    
-    print *, Dist(:)
+    print *, "------------------------------- Points", KnownPos(:,:)
+    print *, "------------------------------- Distances", Dist(:)
     call FindCore
     
     call GeometricDraw(Pos)
@@ -38,7 +38,7 @@ subroutine Initialize
     
     allocate(KnownPos(2, NumPoints), Dist(NumPoints*(NumPoints-1)/2), &
             Pos(2, NumPoints), DistUsed(NumPoints*(NumPoints-1)/2))
-    allocate(TrianglePos(2,NumPoints**2))
+    allocate(TrianglePos(2, 2*NumPoints**2))
     allocate(iTrianglePosDist(2,size(TrianglePos,2))) ! TODO size of array?
     print *, 
     allocate(TrianglesValid(size(TrianglePos,2)))
@@ -73,7 +73,7 @@ subroutine FindCore
         ! Get a new triangle candidate, and add it to TrianglePos (containing 
         ! the third points of the triangle candidates) and store the indices of
         ! the used distances for the new triangle in iTrianglePosDist.
-print *, "Finding a Triangle."
+!print *, "Finding a Triangle."
         call GetTriangle(   TrianglePos(:,iTrianglesStored), & !New triangle
                             iTrianglePosDist(:,:), & ! dist indices
                             iTrianglesStored, Dist, DistUsed, StopSearch) !Inputs
@@ -87,9 +87,10 @@ print *, "Finding a Triangle."
             return
         end if
 
-       
+       print *, "---------------------------- # ", iTrianglesStored
         print *, "Triangle Found" , iTrianglePosDist(1,iTrianglesStored),&
                      ", ",iTrianglePosDist(2,iTrianglesStored)
+        
         !print *, TrianglePos(:,iTrianglesStored)
         
         if (CoreFound .eqv. .false.) then
@@ -101,13 +102,18 @@ print *, "Finding a Triangle."
                 ! The 2 triangles should not use a same distance! (except for the shared 
                 ! distance) Check this:
                 ! Also they should satisfy the triangle inequality
-                print *, "Checking core with a 2nd triangle."
+                print *, 'trianglecheck with #', iTrianglesChecked, &
+                            TrianglesValid(iTrianglesStored), &
+                                TrianglesValid(iTrianglesChecked)
+                print *, 
                 if ( CheckTrianglesUseSameDist(iTrianglesChecked, &
                                         iTrianglesStored, iTrianglePosDist) .and. &
                                         TrianglesValid(iTrianglesStored) .and. &
                                         TrianglesValid(iTrianglesChecked)) then
 
-                    print *, "Found a 2nd Triangle!"
+                 print *, "Checking core with a 2nd valid triangle: " , &
+                                    iTrianglePosDist(1,iTrianglesChecked),&
+                                     ", ",iTrianglePosDist(2,iTrianglesChecked)
 
                     ! Check whether the 2 triangles form a valid core
                     if ( CheckCore(Pos(:,2),TrianglePos(:,iTrianglesStored), &
@@ -133,19 +139,21 @@ print *, "Finding a Triangle."
             enddo
         else if (CoreFound .eqv. .true.) then
             print *, ' Checking triangle candidate #', iTrianglesStored
-            print *, Pos(:,3)
-            print *, TrianglePos(:,iTrianglesStored)
-            print *, 'Distances'
+            !print *, Pos(:,3)
+            !print *, TrianglePos(:,iTrianglesStored)
+            !print *, 'Distances'
             if (TrianglesValid(iTrianglesStored)) then
                 print *, 'Triangle valid'
             if (CheckCore(Pos(:,2), Pos(:,3), &
                             TrianglePos(:,iTrianglesStored), &
                                  iConnectingDist) ) then
+               NumPointsFound = NumPointsFound + 1
+               print *, '........................................................'
+               print *, '........................................................'
                 print *, ' Found point number ', NumPointsFound                
-                NumPointsFound = NumPointsFound + 1
+  
                 Pos(:,NumPointsFound) = TrianglePos(:,iTrianglesStored)
-                 
-                call CorrDistUsed(NumPointsFound, Dist, Pos, DistUsed)
+                call CorrDistUsed(NumPointsFound, Dist, Pos, DistUsed, Margin)
                        if (NumPointsFound .eq. NumPoints) then
                     print *, 'All points found'
                     return
@@ -155,7 +163,7 @@ print *, "Finding a Triangle."
                endif
         endif
     enddo
-    !print *, 'Core not found'
+    print *, 'Only ', NumPointsFound, ' points found, increase array sizes'
 end subroutine FindCore
 
 !******************************************************************************
@@ -177,16 +185,25 @@ function CheckCore(Point2, Point3, Point4, iConnectingDist)
                             !TODO CheckMatch Should check for all 4? 
                              ! possible versions of the second triangle and 
                              ! overwrite Point4 of one of the other 3 is a valid point!!
-    print *, P4(:,2)
-    print *, P4(:,3)
-    print *, P4(:,4)
+  !  print *, P4(:,2)
+   ! print *, P4(:,3)
+   ! print *, P4(:,4)
     
     do iP4=1,4
         call CalcDistance(Point3, P4(:,iP4), distance)
+        !p!rint *, 'distance'
+       ! print *, distance
+        !print *, 'all Distances'
+        !print *, Dist
+        !print *, 'Distused'
+        !print *, DistUsed
         call DistValid(NumPoints, distance, Dist, DistUsed, GoodCore, &
                             iConnectingDist, Margin)
-        
+      
         if(GoodCore) then
+            !print *, '.................................................... all'
+            !print *, Dist
+            !print *, distance
             Point4=P4(:,iP4)
             CheckCore = .true. ! We found the core!
             return
@@ -222,9 +239,9 @@ subroutine GetTriangle(NewTrianglePoint, iTrianglePosDist, iNewTriangle, &
         iTrianglePosDist(2,iNewTriangle) = GetFirstNonUsedDistIndex(iTrianglePosDist&
                                             (1,iNewTriangle), DistUsed)
         
-        print *,  iTrianglePosDist(1,iNewTriangle), iTrianglePosDist(2,iNewTriangle)
+       ! print *,  iTrianglePosDist(1,iNewTriangle), iTrianglePosDist(2,iNewTriangle)
     else if (iPreviousDist1 .eq. iPreviousDist2-1) then
-        print *, '2nd if'
+        !print *, '2nd if'
         ! We need to start using a new distance!
         if (iPreviousDist2 .eq. size(Dist)) then
             StopSearch = .true.
@@ -235,6 +252,7 @@ subroutine GetTriangle(NewTrianglePoint, iTrianglePosDist, iNewTriangle, &
                     GetFirstNonUsedDistIndex(1, DistUsed)
         iTrianglePosDist(2,iNewTriangle)= &
                     GetFirstNonUsedDistIndex(iPreviousDist2, DistUsed)
+             
         
         if (iTrianglePosDist(1,iNewTriangle) .eq. &
                     iTrianglePosDist(2,iNewTriangle)) then
@@ -250,13 +268,28 @@ subroutine GetTriangle(NewTrianglePoint, iTrianglePosDist, iNewTriangle, &
         iTrianglePosDist(1,iNewTriangle) = &
                     GetFirstNonUsedDistIndex(iPreviousDist1, DistUsed)
         iTrianglePosDist(2,iNewTriangle) = iPreviousDist2
+        if (iTrianglePosDist(1,iNewTriangle) .ge. &
+                    iTrianglePosDist(2,iNewTriangle)) then
+         iTrianglePosDist(1,iNewTriangle)= &
+                    GetFirstNonUsedDistIndex(1, DistUsed)
+        iTrianglePosDist(2,iNewTriangle)= &
+                    GetFirstNonUsedDistIndex(iPreviousDist2, DistUsed)
+             
+        
+        if (iTrianglePosDist(1,iNewTriangle) .eq. &
+                    iTrianglePosDist(2,iNewTriangle)) then
+              iTrianglePosDist(2,iNewTriangle)=GetFirstNonUsedDistIndex(&
+                        iTrianglePosDist(1,iNewTriangle), DistUsed)
+        endif
+       endif
+ 
     end if
     
     ! Check triangle inequality
    if (abs((Dist(iTrianglePosDist(1,iNewTriangle)) &
                         - Dist(iTrianglePosDist(2,iNewTriangle)))) .ge. &
                            Dist(1)) then
-        print *, 'Triangle ie not satisfied'
+        !print *, 'Triangle ie not satisfied'
         TrianglesValid(iNewTriangle) = .false.
         return
     endif
