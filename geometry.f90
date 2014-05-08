@@ -57,7 +57,7 @@ end subroutine Initialize
 ! Corefinding routine
 subroutine FindCore
     integer :: iTrianglesStored, iTrianglesChecked,iConnectingDist
-    logical :: StopSearch = .false.
+    logical :: StopSearch = .false., CoreFound = .false.
     integer :: NumPointsFound
      
     ! Add first segment 
@@ -74,69 +74,82 @@ subroutine FindCore
         ! the used distances for the new triangle in iTrianglePosDist.
 print *, "Finding a Triangle."
         call GetTriangle(   TrianglePos(:,iTrianglesStored), & !New triangle
-                            iTrianglePosDist(:,:), & !New dist indices
+                            iTrianglePosDist(:,:), & ! dist indices
                             iTrianglesStored, Dist, DistUsed, StopSearch) !Inputs
 
         if (StopSearch) then
             print *, 'No more triangles available'
             return
         end if
-       
-       print *, "Found" , iTrianglePosDist(1,iTrianglesStored),&
-                     ", ",iTrianglePosDist(2,iTrianglesStored)
-        print *, TrianglePos(:,iTrianglesStored)
-        ! Now, try to search for a core in the triangles that are found by now.
-        ! If we not succeed in finding a core the loop continues and calculates
-        ! an extra triangle.
-        do iTrianglesChecked=1, iTrianglesStored-1
-            ! The 2 triangles should not use a same distance! (except for the shared 
-            ! distance) Check this:
-            ! Also they should satisfy the triangle inequality
-print *, "Checking core with a 2nd triangle."
-            if ( CheckTrianglesUseSameDist(iTrianglesChecked, &
-                                    iTrianglesStored, iTrianglePosDist) .and. &
-                                    TrianglesValid(iTrianglesStored) .and. &
-                                    TrianglesValid(iTrianglesChecked)) then
-!
-print *, "Found a 2nd Triangle!"
+        if (NumPointsFound .eq. NumPoints) then
+            print *, 'All points found'
+            return
+        end if
 
-                ! Check whether the 2 triangles form a valid core
-                if ( CheckCore(Pos(:,1), Pos(:,2),TrianglePos(:,iTrianglesStored), &
-                             TrianglePos(:,iTrianglesChecked), &
-                             iConnectingDist)) then                            
-                    if (NumPointsFound == 2) then
-                        NumPointsFound = 4
-                        print *, ' We have a core'
-                        ! The correct rotation of the second triangle is supplied by the 
-                        ! CheckCore routine
-                        Pos(:,3) = TrianglePos(:,iTrianglesStored)
-                        Pos(:,4) = TrianglePos(:,iTrianglesChecked)
-                        DistUsed(iTrianglePosDist(1, iTrianglesStored)) = .true.
-                        DistUsed(iTrianglePosDist(2, iTrianglesStored)) = .true.
-                        DistUsed(iTrianglePosDist(1, iTrianglesChecked)) = .true.
-                        DistUsed(iTrianglePosDist(2, iTrianglesChecked)) = .true.
-                        DistUsed(iConnectingDist) = .true.
-                        print "(4F12.4)", Pos
-                        !return
-                    else
-                        print *, ' We have an extra point'
-                        NumPointsFound = NumPointsFound + 1
-                        Pos(:,NumPointsFound) = TrianglePos(:,iTrianglesChecked)
-                        DistUsed(iTrianglePosDist(1, iTrianglesStored)) = .true.
-                        DistUsed(iTrianglePosDist(2, iTrianglesStored)) = .true.
-                    endif
+       
+        print *, "Triangle Found" , iTrianglePosDist(1,iTrianglesStored),&
+                     ", ",iTrianglePosDist(2,iTrianglesStored)
+        !print *, TrianglePos(:,iTrianglesStored)
+        
+        if (CoreFound .eqv. .false.) then
+            ! Now, try to search for a core in the triangles that are found by now.
+            ! If we not succeed in finding a core the loop continues and calculates
+            ! an extra triangle.
+ 
+            do iTrianglesChecked=1, iTrianglesStored-1
+                ! The 2 triangles should not use a same distance! (except for the shared 
+                ! distance) Check this:
+                ! Also they should satisfy the triangle inequality
+                print *, "Checking core with a 2nd triangle."
+                if ( CheckTrianglesUseSameDist(iTrianglesChecked, &
+                                        iTrianglesStored, iTrianglePosDist) .and. &
+                                        TrianglesValid(iTrianglesStored) .and. &
+                                        TrianglesValid(iTrianglesChecked)) then
+
+                    print *, "Found a 2nd Triangle!"
+
+                    ! Check whether the 2 triangles form a valid core
+                    if ( CheckCore(Pos(:,2),TrianglePos(:,iTrianglesStored), &
+                                 TrianglePos(:,iTrianglesChecked), &
+                                 iConnectingDist)) then                            
+                            NumPointsFound = 4
+                            print *, ' We have a core'
+                            ! The correct rotation of the second triangle is 
+                            ! supplied by the 
+                            ! CheckCore routine
+                            Pos(:,4) = TrianglePos(:,iTrianglesStored)
+                            Pos(:,3) = TrianglePos(:,iTrianglesChecked)
+                            DistUsed(iTrianglePosDist(1, iTrianglesStored)) = .true.
+                            DistUsed(iTrianglePosDist(2, iTrianglesStored)) = .true.
+                            DistUsed(iTrianglePosDist(1, iTrianglesChecked)) = .true.
+                            DistUsed(iTrianglePosDist(2, iTrianglesChecked)) = .true.
+                            DistUsed(iConnectingDist) = .true.
+                            print "(4F12.4)", Pos
+                            CoreFound = .true.
+                            exit
+                     end if
                 end if
-           end if
-        enddo
+            enddo
+        else if (CoreFound .eqv. .true.) then
+            print *, ' Checking triangle candidate'
+            if (CheckCore(Pos(:,2),TrianglePos(:,iTrianglesStored), &
+                                 Pos(:,3), &
+                                 iConnectingDist)) then
+                print *, ' Found point number ', NumPointsFound                
+                NumPointsFound = NumPointsFound + 1
+                Pos(:,NumPointsFound) = TrianglePos(:,iTrianglesStored)
+                call CorrDistUsed(NumPointsFound, Dist, Pos, DistUsed)
+            end if
+        endif
     enddo
-    print *, 'Core not found'
+    !print *, 'Core not found'
 end subroutine FindCore
 
 !******************************************************************************
 ! Core finding subroutine that checks whether we have found a core
-function CheckCore(Point1, Point2, Point3, Point4, iConnectingDist)
+function CheckCore(Point2, Point3, Point4, iConnectingDist)
     real(8), intent(inout) :: Point4(:)
-    real(8), intent(in) :: Point1(:), Point2(:), Point3(:)
+    real(8), intent(in) :: Point2(:), Point3(:)
     integer, intent(out) :: iConnectingDist
     real(8) :: distance, P4(2,4)
     integer :: iP4
@@ -146,9 +159,8 @@ function CheckCore(Point1, Point2, Point3, Point4, iConnectingDist)
     ! Check for all 4 possible versions of the second triangle.
     ! If we have a match, overwrite Point4 with the matching point
     P4(:,1)=Point4 !We already have the first point
-    call GetAlternativeP3(P4(:,2:4), Point1, Point2, Point4) !get 3 other points
+    call GetAlternativeP3(P4(:,2:4), Point2, Point4) !get 3 other points
    
-    call GetAlternativeP3(P4(:,2:4), Point1, Point2, Point4)
                             !TODO CheckMatch Should check for all 4? 
                              ! possible versions of the second triangle and 
                              ! overwrite Point4 of one of the other 3 is a valid point!!
@@ -221,9 +233,9 @@ subroutine GetTriangle(NewTrianglePoint, iTrianglePosDist, iNewTriangle, &
         
         ! We now have the two new indices of the new triangle
         ! Find the corresponding point
-        print *, 'Newpoint'
-        print *, iTrianglePosDist(2, iNewTriangle)
-        print *, Dist(1), Dist(iTrianglePosDist(1, iNewTriangle)), Dist(iTrianglePosDist(2, iNewTriangle)), NewTrianglePoint
+        !print *, 'Newpoint'
+        !print *, iTrianglePosDist(2, iNewTriangle)
+        !print *, Dist(1), Dist(iTrianglePosDist(1, iNewTriangle)), Dist(iTrianglePosDist(2, iNewTriangle)), NewTrianglePoint
         call Newpoint(Dist(1), Dist(iTrianglePosDist(1, iNewTriangle)), Dist(iTrianglePosDist(2, iNewTriangle)), NewTrianglePoint)
     
     
