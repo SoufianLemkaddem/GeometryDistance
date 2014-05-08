@@ -26,13 +26,12 @@ contains
     subroutine plot_Positions (Pointpos)
         real(8), intent(in) :: Pointpos(:, :)
         integer :: i
-        
-        !call pljoin(0d0, 0d0, -10d0, 0d0)
+ 
+		!pljoin(0d0, 0d0, -10d0, 0dcall, 0)
         !call pljoin(-10d0, 0d0, -10d0, -10d0)
         !call pljoin(-10d0, -10d0, 0d0, -10d0)
         !call pljoin(0d0, -10d0, 0d0, 0d0)
         
-        ! Draw molecules
         do i = 1, size(PointPos, 1)
             call plcol0(13)
             call plpoin([PointPos(i,1)], [PointPos(i,2)], 21)
