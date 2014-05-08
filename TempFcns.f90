@@ -42,8 +42,8 @@ end function CheckTrianglesUseSameDist
 !
 ! Reads 'geometry.params'
 subroutine DistValid(NumPoints, DistGiven, Dist, DistUsed, CanUse, FinalIndex, Margin)
-    integer, intent(in) :: NumPoints, Margin
-    real(8), intent(in) :: DistGiven !Distance to check
+    integer, intent(in) :: NumPoints
+    real(8), intent(in) :: DistGiven, Margin !Distance to check
     real(8), intent(in) :: Dist(:)
     logical, intent(in) :: DistUsed(:)
     logical, intent(inout) :: CanUse !True if distance is avaliable
@@ -57,7 +57,7 @@ subroutine DistValid(NumPoints, DistGiven, Dist, DistUsed, CanUse, FinalIndex, M
     RemRange = Finish - Start
     Midpt = (Start+Finish)/2
 
-    do while((Dist(Midpt) < DistGiven*(1.0d0+margin)).and.(Dist(Midpt) > DistGiven*(1.0d0-Margin)).and.(RemRange > 0))
+    do while((Dist(Midpt) < DistGiven*(1.0d0+Margin)).and.(Dist(Midpt) > DistGiven*(1.0d0-Margin)).and.(RemRange > 0))
         if(DistGiven>Dist(Midpt))then
             Start = Midpt+1
         else
