@@ -67,8 +67,8 @@ subroutine DistValid(NumPoints, DistGiven, Dist, DistUsed, CanUse, FinalIndex, M
         Midpt = (Start+Finish)/2
     end do
 
-!print *, DistGiven
-!print *, Dist(Midpt)
+print *, DistGiven
+print *, Dist(Midpt)
 
     if((DistUsed(Midpt)) .or. (Dist(Midpt) /= DistGiven))then
         CanUse = .false.
