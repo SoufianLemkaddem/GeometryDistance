@@ -74,8 +74,8 @@ end subroutine
 subroutine GetOriginalP(Pfound, Poriginal, P3original, Np, rotangle, transCoord)
 
 integer, intent(in) :: Np
-real(8), intent(in) :: Pfound(Np,2), P3original(2), rotangle, transCoord(2)
-real(8), intent(inout) :: Poriginal(Np,2)
+real(8), intent(in) :: Pfound(2,Np), P3original(2), rotangle, transCoord(2)
+real(8), intent(inout) :: Poriginal(2,Np)
 
 real(8) :: CheckC3(2)
 integer :: i
@@ -83,16 +83,16 @@ integer :: i
 
 Poriginal(1,:) = transCoord(:)
 
-CheckC3(1) = Cos(rotangle)*Pfound(3,1) - Sin(rotangle)*Pfound(3,2) + transCoord(1)
-CheckC3(2) = Sin(rotangle)*Pfound(3,1) + Cos(rotangle)*Pfound(3,2) + transCoord(2)
+CheckC3(1) = Cos(rotangle)*Pfound(1,3) - Sin(rotangle)*Pfound(2,3) + transCoord(1)
+CheckC3(2) = Sin(rotangle)*Pfound(1,3) + Cos(rotangle)*Pfound(2,3) + transCoord(2)
 
 
 if (floor(CheckC3(1)) == floor(P3original(1)) .AND. floor(CheckC3(2)) == floor(P3original(2))) then
 
 	do i = 2, Np
 
-		Poriginal(i,1) = Cos(rotangle)*Pfound(i,1) - Sin(rotangle)*Pfound(i,2) + transCoord(1)
-		Poriginal(i,2) = Sin(rotangle)*Pfound(i,1) + Cos(rotangle)*Pfound(i,2) + transCoord(2)
+		Poriginal(1,i) = Cos(rotangle)*Pfound(1,i) - Sin(rotangle)*Pfound(2,i) + transCoord(1)
+		Poriginal(2,i) = Sin(rotangle)*Pfound(1,i) + Cos(rotangle)*Pfound(2,i) + transCoord(2)
 
 	end do 
 
@@ -100,8 +100,8 @@ else
 
 	do i = 2, Np
 
-		Poriginal(i,1) = Cos(rotangle)*Pfound(i,1) + Sin(rotangle)*Pfound(i,2) + transCoord(1)
-		Poriginal(i,2) = Sin(rotangle)*Pfound(i,1) - Cos(rotangle)*Pfound(i,2) + transCoord(2)
+		Poriginal(1,i) = Cos(rotangle)*Pfound(1,i) + Sin(rotangle)*Pfound(2,i) + transCoord(1)
+		Poriginal(2,i) = Sin(rotangle)*Pfound(1,i) - Cos(rotangle)*Pfound(2,i) + transCoord(2)
 
 	end do 
 
